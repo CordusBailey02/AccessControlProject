@@ -11,7 +11,7 @@ const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);
 const SQL = "SELECT * FROM users;";
 const USER_TABLE_QUERY_PREFIX = "SELECT * FROM users;";
-const loginQuery = "SELECT * FROM users WHERE username = 'user' AND password = 'pass';"
+// const loginQuery = "SELECT * FROM users WHERE username = 'user' AND password = 'pass';"
 
 const app = express();
 app.use(express.json());
@@ -42,12 +42,13 @@ app.get("/query", function (request, response) {
 // Route for login page
 app.post("/login", function(request, response) {
 	const { username, password } = request.body;
-	connection.query("SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \"" password + "\';", 
+	const loginQuery = "SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \'" + password + "\';";
+	connection.query(loginQuery,
 			function(error, results, fields){
 				if(error) {
 					console.error(error.message);
 					response.status(500);
-					resonse.send("Database error");
+					response.send("Database error");
 				}
 				// User found
 				else if(results.length > 0) {
