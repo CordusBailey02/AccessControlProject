@@ -31,25 +31,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle clicks on links with `data-route`
     document.querySelectorAll('a[data-route]').forEach(link => {
         link.addEventListener('click', event => {
-            event.preventDefault();
-            var path = link.getAttribute('href');
-            console.log("PATH: ", path)
-    
-            history.pushState({}, '', path);
-            navigateTo(path === '/' ? '/home' : path);
+			event.preventDefault();
+				var path = link.getAttribute('href');
+				console.log("PATH: ", path)
+				
+				history.pushState({}, '', path);		// random bizarre crap
+
+				// On click, navigate to appropriate endpoint.
+				if(path === '/') navigateTo("/home");
+				else             navigateTo(path);
+				
         });
     });
-  
-  
+   
     // Handle browser back/forward buttons
     window.addEventListener('popstate', () => {
         navigateTo(window.location.pathname);
     });
   
     // Load the initial route
-    //navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname);
-  
-  });
-  
-  
-  
+    //navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); 
+  }); 

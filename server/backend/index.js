@@ -9,7 +9,8 @@ const HOST = String(process.env.HOST);
 const MYSQLHOST = String(process.env.MYSQLHOST);
 const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);
-const SQL = "SELECT * FROM users;"
+const SQL = "SELECT * FROM users;";
+const USER_TABLE_QUERY_PREFIX = "SELECT * FROM users;";
 const loginQuery = "SELECT * FROM users WHERE username = 'user' AND password = 'pass';"
 
 const app = express();
@@ -26,7 +27,6 @@ let connection = mysql.createConnection({
 
 app.use("/", express.static(path.join(__dirname, '../frontend')));
 
-
 app.get("/query", function (request, response) {
   connection.query(SQL, [true], (error, results, fields) => {
     if (error) {
@@ -39,22 +39,30 @@ app.get("/query", function (request, response) {
   });
 })
 
+// Route for login page
 app.post("/login", function(request, response) {
-  const { username, password } = request.body;
-
-  connection.query(SQL, [username, password], (error, results, fields) => {
-    if(error) {
-      console.error(error.message);
-      response.status(500).send("Database error");
-    } else if(results.length > 0) {
-      console.log("Returned results:", results);
-      response.send(results);
-    } else {
-      console.log('Failed Login, Invalid Credentials');
-      response.status(400).send("invalid credentials");
-    }
-  })
-})
+	const { username, password } = request.body;
+	connection.query("SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \"" password + "\';", 
+			function(error, results, fields){
+				if(error) {
+					console.error(error.message);
+					response.status(500);
+					resonse.send("Database error");
+				}
+				// User found
+				else if(results.length > 0) {
+					console.log("Returned results:", results);
+					response.send(results);
+				}
+				// User not found
+				else {
+					console.log('Failed Login, Invalid Credentials');
+					response.status(400);
+					response.send("invalid credentials");
+				}
+	    		}
+	);
+});
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
