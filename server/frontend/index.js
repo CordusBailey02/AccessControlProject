@@ -5,9 +5,11 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 
 	// Function to handle navigation to different pages
 	function navigateTo(path) {
+		console.log('PATH TO GO TO', path);
 		const pagePath = path === '/' ? '/home' : path; // Use '/home' for the root path or retain the provided path
 		fetch("pages" + pagePath + pagePath + ".html") // Fetch the HTML content for the target page
 			.then(response => {
+				console.log('Response status:', response.status)
 				if (!response.ok) throw new Error('Page not found'); // If the response is not OK, throw an error
 				return response.text(); // Convert the response to text (HTML content)
 			})
@@ -34,10 +36,8 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 	document.querySelectorAll('a[data-route]').forEach(link => { // Select all links with the 'data-route' attribute
 		link.addEventListener('click', event => { // Add a click event listener to each link
 			event.preventDefault(); // Prevent the default browser navigation behavior
-			var path = link.getAttribute('href'); // Get the 'href' attribute value of the clicked link
+			var path = link.getAttribute('data-route'); // Get the 'href' attribute value of the clicked link
 			console.log("PATH: ", path); // Log the path to the console
-
-			history.pushState({}, '', path); // Update the browser history with the new URL
 
 			// On click, navigate to the appropriate endpoint
 			if (path === '/') navigateTo("/home"); // If the path is '/', navigate to '/home'
