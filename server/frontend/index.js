@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
     // Function to handle navigation to different pages
     function navigateTo(path) {
         const pagePath = path === '/' ? '/home' : path; // Use '/home' for the root path or retain the provided path
-        fetch(`pages${pagePath}${pagePath}.html`) // Fetch the HTML content for the target page
+        fetch("pages${pagePath}${pagePath}.html") // Fetch the HTML content for the target page
             .then(response => {
                 if (!response.ok) throw new Error('Page not found'); // If the response is not OK, throw an error
                 return response.text(); // Convert the response to text (HTML content)
@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
                 appContent.innerHTML = html; // Load the fetched HTML content into the page content element
 
                 // Dynamically load the script for the page
-                const scriptPath = `pages${pagePath}${pagePath}.js`; // Construct the path to the JavaScript file for the page
+                const scriptPath = "pages${pagePath}${pagePath}.js"; // Construct the path to the JavaScript file for the page
                 const scriptElement = document.createElement('script'); // Create a new script element
                 scriptElement.src = scriptPath; // Set the source of the script to the constructed path
-                scriptElement.onload = () => console.log(`${scriptPath} loaded`); // Log a message when the script loads successfully
-                scriptElement.onerror = () => console.warn(`${scriptPath} not found`); // Warn if the script fails to load
+                scriptElement.onload = () => console.log("${scriptPath} loaded"); // Log a message when the script loads successfully
+                scriptElement.onerror = () => console.warn("${scriptPath} not found"); // Warn if the script fails to load
                 document.body.appendChild(scriptElement); // Append the script to the document body
             })
             .catch(() => {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
             });
     }
   
-    // Handle clicks on links with `data-route`
+    // Handle clicks on links with "data-route"
     document.querySelectorAll('a[data-route]').forEach(link => { // Select all links with the 'data-route' attribute
         link.addEventListener('click', event => { // Add a click event listener to each link
             event.preventDefault(); // Prevent the default browser navigation behavior
