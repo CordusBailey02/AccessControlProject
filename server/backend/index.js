@@ -1,42 +1,25 @@
 const { response } = require("express"); // Import the `response` object from Express (unused in this code)
-const express = require("express"); // Import Express for creating the server
-const mysql = require("mysql2"); // Import MySQL2 for connecting to the database
-const path = require("path"); // Import `path` for handling file paths
+const express = require("express");      // Import Express for creating the server
+const mysql = require("mysql2");         // Import MySQL2 for connecting to the database
+const path = require("path");            // Import `path` for handling file paths
 
 // Define environment variables for server and database configuration
-const PORT = String(process.env.PORT); // Port on which the server will run
-const HOST = String(process.env.HOST); // Host address for the server
-const MYSQLHOST = String(process.env.MYSQLHOST); // MySQL database host
-const MYSQLUSER = String(process.env.MYSQLUSER); // MySQL username
-const MYSQLPASS = String(process.env.MYSQLPASS); // MySQL password
-const SQL = "SELECT * FROM users;"; // Query to select all users
-const USER_TABLE_QUERY_PREFIX = "SELECT * FROM users;"; // Placeholder for table-specific queries (currently unused)
-const loginQuery = "SELECT * FROM users WHERE username = 'user' AND password = 'pass';"; // Hardcoded login query (not dynamic)
-
-<<<<<<< HEAD
-const PORT = String(process.env.PORT);
-const HOST = String(process.env.HOST);
-const MYSQLHOST = String(process.env.MYSQLHOST);
+const PORT = String(process.env.PORT); 
+const HOST = String(process.env.HOST); 
+const MYSQLHOST = String(process.env.MYSQLHOST); 
 const MYSQLUSER = String(process.env.MYSQLUSER);
-const MYSQLPASS = String(process.env.MYSQLPASS);
-const SQL = "SELECT * FROM users;";
-const USER_TABLE_QUERY_PREFIX = "SELECT * FROM users;";
-// const loginQuery = "SELECT * FROM users WHERE username = 'user' AND password = 'pass';"
+const MYSQLPASS = String(process.env.MYSQLPASS); 
+const SQL = "SELECT * FROM users;"; 		
 
-const app = express();
-app.use(express.json());
-
-=======
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
->>>>>>> 722e0906f11cfa09afac8916f79ed63f80e104a8
 
 // Create a connection to the MySQL database
 let connection = mysql.createConnection({
-	host: MYSQLHOST, // Use the MySQL host from environment variables
-	user: MYSQLUSER, // Use the MySQL username from environment variables
-	password: MYSQLPASS, // Use the MySQL password from environment variables
-	database: "users" // Specify the database name
+	host: MYSQLHOST, 
+	user: MYSQLUSER, 
+	password: MYSQLPASS, 
+	database: "users" 
 });
 
 // Serve static files from the frontend directory
@@ -56,56 +39,32 @@ app.get("/query", function (request, response) {
 });
 
 // Route for login page
-<<<<<<< HEAD
-app.post("/login", function(request, response) {
-	const { username, password } = request.body;
-	const loginQuery = "SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \'" + password + "\';";
-	connection.query(loginQuery,
-			function(error, results, fields){
-				if(error) {
-					console.error(error.message);
-					response.status(500);
-					response.send("Database error");
+app.post("/login", function (request, response) {
+	const { username, password } = request.body; // Extract username and password from the request body
+
+	// Dynamically construct the SQL query with user-provided credentials
+	const loginQuery = "SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \'" + password + "\';");
+	connection.query(loginQuery
+			function (error, results, fields) { // Execute the query
+				if (error) {
+					console.error(error.message); 
+					// Update response type and send error message
+					response.status(500); 
+					response.send("Database error"); 
 				}
 				// User found
-				else if(results.length > 0) {
-					console.log("Returned results:", results);
+				else if (results.length > 0) {
+					console.log("Returned results:", results); 
 					response.send(results);
 				}
 				// User not found
 				else {
 					console.log('Failed Login, Invalid Credentials');
+					// Update response type and send response message
 					response.status(400);
-					response.send("invalid credentials");
+					response.send("invalid credentials"); 
 				}
-	    		}
-=======
-app.post("/login", function (request, response) {
-	const { username, password } = request.body; // Extract username and password from the request body
-
-	// Dynamically construct the SQL query with user-provided credentials
-	connection.query(
-		"SELECT username, password FROM users WHERE username = ? AND password = ?",
-		[username, password],
-		function (error, results, fields) { // Execute the query
-			if (error) {
-				console.error(error.message); // Log the error if the query fails
-				response.status(500); // Set the response status to 500
-				response.send("Database error"); // Respond with an error message
 			}
-			// User found
-			else if (results.length > 0) {
-				console.log("Returned results:", results); // Log the query results
-				response.send(results); // Send the query results as the response
-			}
-			// User not found
-			else {
-				console.log('Failed Login, Invalid Credentials'); // Log an invalid login attempt
-				response.status(400); // Set the response status to 400
-				response.send("invalid credentials"); // Respond with an error message
-			}
-		}
->>>>>>> 722e0906f11cfa09afac8916f79ed63f80e104a8
 	);
 });
 
