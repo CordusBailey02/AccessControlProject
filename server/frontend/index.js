@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 				const scriptPath = "pages" + pagePath + pagePath + ".js"; // Construct the path to the JavaScript file for the page
 				const scriptElement = document.createElement('script'); // Create a new script element
 				scriptElement.src = scriptPath; // Set the source of the script to the constructed path
-				scriptElement.onload = () => console.log("${scriptPath} loaded"); // Log a message when the script loads successfully
-				scriptElement.onerror = () => console.warn("${scriptPath} not found"); // Warn if the script fails to load
+				scriptElement.onload = () => console.log(scriptPath + " loaded"); // Log a message when the script loads successfully
+				scriptElement.onerror = () => console.warn(scriptPath + " not found"); // Warn if the script fails to load
 				document.body.appendChild(scriptElement); // Append the script to the document body
 			})
 			.catch(() => {
@@ -42,11 +42,8 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 		});
 	});
 
-	// Handle browser back/forward buttons
-	window.addEventListener('popstate', () => { // Listen for popstate events (back/forward button clicks)
-		navigateTo(window.location.pathname); // Navigate to the current browser pathname
-	});
+
 
 	// Load the initial route
-	// navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
+	//navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
 });
