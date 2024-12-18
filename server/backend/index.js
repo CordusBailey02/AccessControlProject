@@ -44,7 +44,7 @@ app.post("/login", function (request, response) {
 
 	// Dynamically construct the SQL query with user-provided credentials
 	const loginQuery = "SELECT username, password FROM users WHERE username = \'" + username + "\' AND password = \'" + password + "\';";
-	connection.query(loginQuery
+	connection.query(loginQuery,
 			function (error, results, fields) { // Execute the query
 				if (error) {
 					console.error(error.message); 
