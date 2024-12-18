@@ -1,54 +1,52 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const appContent = document.getElementById('page-content');
-    //const navbar = document.getElementById('page-header');
-    //const footer = document.getElementById('page-footer');
-  
-  
-    // Function to handle navigation to different pages
-    function navigateTo(path) {
-        const pagePath = path === '/' ? '/home' : path;
-        fetch(`pages${pagePath}${pagePath}.html`)
-            .then(response => {
-                if (!response.ok) throw new Error('Page not found');
-                return response.text();
-            })
-            .then(html => {
-                appContent.innerHTML = html;
-  
-                // Dynamically load the script for the page
-                const scriptPath = `pages${pagePath}${pagePath}.js`;
-                const scriptElement = document.createElement('script');
-                scriptElement.src = scriptPath;
-                scriptElement.onload = () => console.log(`${scriptPath} loaded`);
-                scriptElement.onerror = () => console.warn(`${scriptPath} not found`);
-                document.body.appendChild(scriptElement);
-            })
-            .catch(() => {
-                appContent.innerHTML = '<h1>404 - Page Not Found</h1>';
-            });
-    }
-  
-    // Handle clicks on links with `data-route`
-    document.querySelectorAll('a[data-route]').forEach(link => {
-        link.addEventListener('click', event => {
-			event.preventDefault();
-				var path = link.getAttribute('href');
-				console.log("PATH: ", path)
-				
-				history.pushState({}, '', path);		// random bizarre crap
+document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is fully loaded before running the script
+	const appContent = document.getElementById('page-content'); // Get the element where page content will be dynamically loaded
+	// const navbar = document.getElementById('page-header'); // (Commented out) Get the element for the navigation bar
+	// const footer = document.getElementById('page-footer'); // (Commented out) Get the element for the page footer
 
-				// On click, navigate to appropriate endpoint.
-				if(path === '/') navigateTo("/home");
-				else             navigateTo(path);
-				
-        });
-    });
-   
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', () => {
-        navigateTo(window.location.pathname);
-    });
-  
-    // Load the initial route
-    //navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); 
-  }); 
+	// Function to handle navigation to different pages
+	function navigateTo(path) {
+		const pagePath = path === '/' ? '/home' : path; // Use '/home' for the root path or retain the provided path
+		fetch("pages${pagePath}${pagePath}.html") // Fetch the HTML content for the target page
+			.then(response => {
+				if (!response.ok) throw new Error('Page not found'); // If the response is not OK, throw an error
+				return response.text(); // Convert the response to text (HTML content)
+			})
+			.then(html => {
+				appContent.innerHTML = html; // Load the fetched HTML content into the page content element
+
+				// Dynamically load the script for the page
+				const scriptPath = "pages${pagePath}${pagePath}.js"; // Construct the path to the JavaScript file for the page
+				const scriptElement = document.createElement('script'); // Create a new script element
+				scriptElement.src = scriptPath; // Set the source of the script to the constructed path
+				scriptElement.onload = () => console.log("${scriptPath} loaded"); // Log a message when the script loads successfully
+				scriptElement.onerror = () => console.warn("${scriptPath} not found"); // Warn if the script fails to load
+				document.body.appendChild(scriptElement); // Append the script to the document body
+			})
+			.catch(() => {
+				appContent.innerHTML = '<h1>404 - Page Not Found</h1>'; // Display a 404 message if the page or script is not found
+			});
+	}
+
+	// Handle clicks on links with "data-route"
+	document.querySelectorAll('a[data-route]').forEach(link => { // Select all links with the 'data-route' attribute
+		link.addEventListener('click', event => { // Add a click event listener to each link
+			event.preventDefault(); // Prevent the default browser navigation behavior
+			var path = link.getAttribute('href'); // Get the 'href' attribute value of the clicked link
+			console.log("PATH: ", path); // Log the path to the console
+
+			history.pushState({}, '', path); // Update the browser history with the new URL
+
+			// On click, navigate to the appropriate endpoint
+			if (path === '/') navigateTo("/home"); // If the path is '/', navigate to '/home'
+			else navigateTo(path); // Otherwise, navigate to the specified path
+		});
+	});
+
+	// Handle browser back/forward buttons
+	window.addEventListener('popstate', () => { // Listen for popstate events (back/forward button clicks)
+		navigateTo(window.location.pathname); // Navigate to the current browser pathname
+	});
+
+	// Load the initial route
+	// navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
+});
