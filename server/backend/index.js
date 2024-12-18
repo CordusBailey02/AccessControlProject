@@ -43,49 +43,57 @@ app.get("/query", function (request, response) {
 // Route for login page
 app.post("/login", function (request, response) {
 	const { username, password } = request.body; // Extract username and password from the request body
-
+	console.log("Request: ", request.body)
 	// Dynamically construct the SQL query with user-provided credentials
 	const loginQuery = "SELECT * FROM users WHERE username = ?"
 	connection.query(loginQuery, [username],
-			async function (error, results, fields) { // Execute the query
+			function (error, results, fields) { // Execute the query
+
 				if (error) {
-					console.error(error.message); 
+					console.error("Database Error:\n", error.message); 
 					// Update response type and send error message
 					response.status(500); 
-          // Have to send back json (dictionary)
-					response.send({"message": "Database error"}); 
+          			// Have to send back json (dictionary)
+					response.send({"message": "Server error"}); 
 				}
-				// User found
-				else if (results.length > 0) {
-					console.log("Returned results:", results);
-
-          // Get stored information for the user
-          const storedUsername = results[0].username;
-          const storedPassword = results[0].password;
-          const storedSalt = results[0].salt;
-
-          // Hash inputted password with salt
-          const hashedPassword = await hashPassword(password, storedSalt);
-          console.log(hashedPassword)
-          console.log(storedSalt)
-
-          // Make sure username matches and stored password matches inputted hashed password with stored salt
-          if(username == storedUsername && storedPassword == hashedPassword)
-          {
-            response.status(200); 
-					  response.send({"message": "success"});
-          }
-				}
-				// User not found
-				else {
-					console.log('Failed Login, Invalid Credentials');
+				else if(results.length == 0) {
+					console.log('User not found');
 					// Update response type and send response message
 					response.status(401);
-          // Have to send back json (dictionary)
-					response.send({"message" :"invalid credentials"}); 
+          			// Have to send back json (dictionary)
+					response.send("Unauthorized"); 
 				}
+				// User found
+				else {
+					// Get stored information for the user
+					const storedPassword = results[0].password;
+					const storedSalt = results[0].salt;
 
-        return {"message": "Failed..."} 
+					// Construct password with stored salt from user, inputted password for login, and the PEPPER
+					const combinedPass = storedSalt + password + PEPPER;
+
+					// Use bcrypt to compare the combinedPassword with the stored password
+					bcrpyt.compare(combinedPass, storedPassword, function(err, result) {
+						// If we get an error, then there is a password mismatch
+						if(err) {
+							console.log("Password mismatch")
+							response.status(401);
+							// Have to send back json (dictionary)
+							response.send("Unauthorized"); 
+						}
+						// Otherwise, we get a success login
+						else {
+							console.log(username, " logged in")
+							response.status(200)
+							response.send("Success")
+						}
+					})
+
+					console.log("Username: ", username, " has logged in")
+					console.log("Returned results:", results);	
+
+				}
+				
 			}
 	);
 });
@@ -93,13 +101,4 @@ app.post("/login", function (request, response) {
 // Start the server on the specified HOST and PORT
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`); // Log the server address when it starts
-
-async function hashPassword(password, salt) {
-  //const salt = await bcrpyt.genSalt(4);
-  const PEPPER = "$2b$04$8hQbkpQsUfcfwFE/KIbwQO";
-  const pepperedPassword = password + PEPPER;
-
-  const hashedPassword = await bcrpyt.hash(password, salt);
-  return hashedPassword;
-}
 

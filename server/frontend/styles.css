@@ -91,16 +91,6 @@ nav a:hover, .logout:hover {
     border-radius: 5px;
 }
 
-/* Hide login/register links when user is logged in */
-nav .login-register {
-    display: inline-block;
-}
-
-/* Show account info and logout buttons when user is logged in */
-nav .account-info {
-    display: inline-block;
-}
-
 /* Toggle Link */
 p {
     margin-top: 10px;
