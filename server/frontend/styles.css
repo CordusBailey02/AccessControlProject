@@ -1,0 +1,108 @@
+/* Existing Styles */
+body {
+    background-color: lightblue;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Take full height of the viewport */
+    text-align: center;
+}
+
+.auth-form {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #0073b1;
+}
+
+/* Form Inputs */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+input:focus {
+    border-color: #0073b1;
+    outline: none;
+}
+
+/* Button Styles */
+.button {
+    background-color: black;
+    border: none;
+    color: whitesmoke;
+    padding: 10px 30px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.button:hover {
+    background-color: #333;
+}
+
+/* Navigation */
+nav {
+    background-color: black;
+    display: flex;
+    justify-content: space-between; /* Aligns items to opposite ends */
+    padding: 10px 20px;
+}
+
+nav a, .logout {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+nav a:hover, .logout:hover {
+    background-color: #555;
+    border-radius: 5px;
+}
+
+/* Hide login/register links when user is logged in */
+nav .login-register {
+    display: inline-block;
+}
+
+/* Show account info and logout buttons when user is logged in */
+nav .account-info {
+    display: inline-block;
+}
+
+/* Toggle Link */
+p {
+    margin-top: 10px;
+}
+
+p a {
+    color: #0073b1;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}

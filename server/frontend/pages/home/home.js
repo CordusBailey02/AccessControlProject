@@ -1,3 +1,9 @@
+console.log('Home page script loaded');
+
+document.getElementById('welcome-button')?.addEventListener('click', () => {
+  alert('Welcome to the Home Page!');
+});
+
 var parsedUrl = new URL(window.location.href);
 
 function query() {
