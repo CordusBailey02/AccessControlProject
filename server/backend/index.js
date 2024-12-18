@@ -50,19 +50,22 @@ app.post("/login", function (request, response) {
 					console.error(error.message); 
 					// Update response type and send error message
 					response.status(500); 
-					response.send("Database error"); 
+          // Have to send back json (dictionary)
+					response.send({"message": "Database error"}); 
 				}
 				// User found
 				else if (results.length > 0) {
-					console.log("Returned results:", results); 
+					console.log("Returned results:", results);
+          response.status(200); 
 					response.send(results);
 				}
 				// User not found
 				else {
 					console.log('Failed Login, Invalid Credentials');
 					// Update response type and send response message
-					response.status(400);
-					response.send("invalid credentials"); 
+					response.status(401);
+          // Have to send back json (dictionary)
+					response.send({"message" :"invalid credentials"}); 
 				}
 			}
 	);
