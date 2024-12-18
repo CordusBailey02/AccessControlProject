@@ -10,6 +10,7 @@ const HOST = String(process.env.HOST);
 const MYSQLHOST = String(process.env.MYSQLHOST); 
 const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS); 
+const PEPPER = String(process.env.PEPPER);
 const SQL = "SELECT * FROM users;"; 		
 
 const app = express(); // Create an Express application
