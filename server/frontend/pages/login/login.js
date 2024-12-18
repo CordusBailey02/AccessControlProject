@@ -14,6 +14,15 @@ function login(username, password) {
     }),
     })
     .then(response => response.json())
-    .then(data => console.log(data))
+    .then(data => {
+        console.log(data)
+        // Sets login to true and navigates to home page
+        if(data.message == "success")
+        {
+            window.loggedIn = true;
+            window.navigateTo('/home')
+        }
+
+    })
     .catch((error) => console.error('Error:', error));
 }

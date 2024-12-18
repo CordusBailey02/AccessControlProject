@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 			})
 			.then(html => {
 				appContent.innerHTML = html; // Load the fetched HTML content into the page content element
+                if(loggedIn && path == '/home') {
+                    checkAndShowContent();
+                }
 
 				// Dynamically load the script for the page
 				const scriptPath = "pages" + pagePath + pagePath + ".js"; // Construct the path to the JavaScript file for the page
@@ -45,5 +48,18 @@ document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is f
 
 
 	// Load the initial route
-	//navigateTo(window.location.pathname === '/' ? '/home' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
+	navigateTo(window.location.pathname === '/' ? '/login' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
+
+    // Window variables to be access by other js files
+    window.loggedIn = false;
+    window.navigateTo = navigateTo;
 });
+
+// Function to toggle showing the query button and output text box for now
+function checkAndShowContent() {
+    const contentElement = document.querySelector('.query-content');
+    
+    if (contentElement && contentElement.style.display === 'none') {
+        contentElement.style.display = '';
+    }
+}

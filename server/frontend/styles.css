@@ -11,6 +11,14 @@ body {
     height: 100vh; /* Take full height of the viewport */
     text-align: center;
 }
+.query-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Take full height of the viewport */
+    text-align: center;
+}
 
 .auth-form {
     background-color: white;
