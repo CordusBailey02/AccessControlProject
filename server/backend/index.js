@@ -54,7 +54,7 @@ app.post("/login", function (request, response) {
 					// Update response type and send error message
 					response.status(500); 
           			// Have to send back json (dictionary)
-					response.send({"message": "Server error"}); 
+					response.send("Server Error"); 
 				}
 				else if(results.length == 0) {
 					console.log('User not found');
@@ -76,22 +76,25 @@ app.post("/login", function (request, response) {
 					bcrpyt.compare(combinedPass, storedPassword, function(err, result) {
 						// If we get an error, then there is a password mismatch
 						if(err) {
+							console.log("Error occurred")
+							response.status(500);
+							// Have to send back json (dictionary)
+							response.send("Server Error"); 
+						}
+						// if result exists, we get a success login
+						else if(result) {
+							console.log(username, " logged in")
+							response.status(200)
+							response.send("Success")
+						}
+						// Otherwise a unsuccessful login
+						else {
 							console.log("Password mismatch")
 							response.status(401);
 							// Have to send back json (dictionary)
 							response.send("Unauthorized"); 
 						}
-						// Otherwise, we get a success login
-						else {
-							console.log(username, " logged in")
-							response.status(200)
-							response.send("Success")
-						}
 					})
-
-					console.log("Username: ", username, " has logged in")
-					console.log("Returned results:", results);	
-
 				}
 				
 			}
