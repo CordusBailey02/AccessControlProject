@@ -98,6 +98,17 @@ app.post("/login", function (request, response) {
 	);
 });
 
+
+// app.post("/register", function (request, response) {
+// 	const { username, password } = request.body; // Extract username and password from the request body
+// 	console.log("Request: ", request.body);
+// 	// Dynamically construct the SQL query with user-provided credentials
+// 	const loginQuery = "INSERT INTO users VALUES (?, ?)";
+// 	function (error, results, fields) {
+
+// 	}
+// })
+
 // Start the server on the specified HOST and PORT
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`); // Log the server address when it starts
