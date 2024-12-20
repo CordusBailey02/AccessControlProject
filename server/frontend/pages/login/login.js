@@ -22,16 +22,16 @@ function login(username, password) {
         if(response.status == 200)
         {
             window.loggedIn = true;
-            alert("Successfully Logged In")
-            window.navigateTo('/home')
+            alert("Successfully Logged In");
+            window.navigateTo('/home');
         }
         // If response is 401, password or username was incorrect
         else if(response.status == 401) {
-            alert("Username or password incorrect")
+            alert("Username or password incorrect");
         }
         // If response is 500, server error occured, check server logs
         else if(response.status == 500) {
-            alert("Server Error")
+            alert("Server Error");
         }
         // Else an unhandled error occurs
         else {

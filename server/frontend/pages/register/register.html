@@ -1,16 +1,15 @@
-
 <body>
+    <!-- Auth Contatiner -->
     <div class="content">
         <!-- Register Form -->
         <div id="register-form" class="auth-form">
             <h2>Join Now</h2>
-            <form id="register-form-action">
-                <input type="text" id="first-name" name="first_name" placeholder="First name" required>
-                <input type="text" id="last-name" name="last_name" placeholder="Last name" required>
-                <input type="email" id="register-email" name="email" placeholder="Email" required>
+            <div>
+                <input type="text" id="register-username" name="username" placeholder="User" required>
                 <input type="password" id="register-password" name="password" placeholder="Password" required>
-                <button type="submit" class="button">Join now</button>
-            </form>
+                <input type="email" id="register-email" name="email" placeholder="Email" required>
+                <button class="button" onclick="register(document.getElementById('register-username').value, document.getElementById('register-password').value, document.getElementById('register-email').value)">Join now</button>
+            </div>
             <p><a href="#">Already have an account? Sign in</a></p>
         </div>
     </div>

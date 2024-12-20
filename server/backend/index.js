@@ -43,9 +43,9 @@ app.get("/query", function (request, response) {
 // Route for login page
 app.post("/login", function (request, response) {
 	const { username, password } = request.body; // Extract username and password from the request body
-	console.log("Request: ", request.body)
+	console.log("\nLOGIN Request: ", request.body)
 	// Dynamically construct the SQL query with user-provided credentials
-	const loginQuery = "SELECT * FROM users WHERE username = ?"
+	const loginQuery = "SELECT * FROM users WHERE username = ?";
 	connection.query(loginQuery, [username],
 			function (error, results, fields) { // Execute the query
 
@@ -70,7 +70,7 @@ app.post("/login", function (request, response) {
 					const storedSalt = results[0].salt;
 
 					// Construct password with stored salt from user, inputted password for login, and the PEPPER
-					const combinedPass = storedSalt + password + PEPPER;
+					const combinedPass = password + PEPPER;
 
 					// Use bcrypt to compare the combinedPassword with the stored password
 					bcrpyt.compare(combinedPass, storedPassword, function(err, result) {
@@ -93,6 +93,7 @@ app.post("/login", function (request, response) {
 							response.status(401);
 							// Have to send back json (dictionary)
 							response.send("Unauthorized"); 
+							console.log("[Login] sql result:\n", results);
 						}
 					})
 				}
@@ -102,15 +103,49 @@ app.post("/login", function (request, response) {
 });
 
 
-// app.post("/register", function (request, response) {
-// 	const { username, password } = request.body; // Extract username and password from the request body
-// 	console.log("Request: ", request.body);
-// 	// Dynamically construct the SQL query with user-provided credentials
-// 	const loginQuery = "INSERT INTO users VALUES (?, ?)";
-// 	function (error, results, fields) {
+app.post("/register", function (request, response) {
+	const { username, password, email } = request.body; // Extract username and password from the request body
+	console.log("\nREGISTER Request: ", request.body);
+	// Dynamically construct the SQL query with user-provided credentials
 
-// 	}
-// })
+	const registerQuery = "INSERT INTO users VALUES (?, ?, ?, ?);";
+	const combinedPass = password + PEPPER;
+
+	console.log("[REGISTER] Combined pass: ", combinedPass);
+
+	bcrpyt.genSalt(1, function(err, salt) {
+		if(err) {
+			console.log("Salt generation error:\n\t", err.message);
+		}
+		else {
+			console.log("[Register] salt: ", salt);
+		}
+		bcrpyt.hash(combinedPass, salt, function(err, hash) {
+			if(err) {
+				console.log("Hash generation error:\n\t", err.message);
+			}
+			connection.query(registerQuery, [username, hash, salt, email], 
+				function (error, results, fields) 
+				{ // Execute the query
+					if (error) {
+						console.error("Database Error:\n", error.message); 
+						// Update response type and send error message
+						response.status(500); 
+						// Have to send back json (dictionary)
+						response.send("Server Error"); 
+					}
+					else
+					{
+						response.status(200);
+						response.send("Registration complete.")
+					}
+				}
+			)
+		})
+	})
+	
+	
+})
 
 // Start the server on the specified HOST and PORT
 app.listen(PORT, HOST);
