@@ -1,0 +1,13 @@
+<body>
+    <!-- Auth Container -->
+    <div class="content">
+        <!-- Login Form -->
+        <div id="totp-form" class="auth-form">
+            <h2>Enter TOTP Code</h2>
+            <div>
+                <input type="totp" id="totp-code" name="totp" placeholder="" required maxlength="6">
+                <button class="button" onclick="send_totp_code(document.getElementById('totp-code').value)">Confirm</button>
+            </div>
+        </div> 
+    </div>
+</body>
