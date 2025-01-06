@@ -22,8 +22,8 @@ function login(username, password) {
         if(response.status == 200)
         {
             window.loggedIn = true;
-            alert("Successfully Logged In");
-            window.navigateTo('/home');
+            alert("Successfully Logged In")
+            window.navigateTo('/totp')
         }
         // If response is 401, password or username was incorrect
         else if(response.status == 401) {
