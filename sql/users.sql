@@ -12,9 +12,7 @@ CREATE TABLE users (
 );
 
 INSERT INTO users
-VALUES(
-    "user",
-    "$2a$12$7pvJ83QfxWSFdiIOqaoSJucaa8HnJgpJ/wGT.CHbLlddA/fAPk5ay",
-    "3eb7",
-    "user@example.com",
-);
+VALUES("user", 
+    "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C", 
+    "3eb7", 
+    "user@example.com");
