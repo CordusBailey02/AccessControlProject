@@ -22,6 +22,7 @@ services:
       - MYSQLUSER=root
       - MYSQLPASS=example
       - PEPPER=ef79
+      - TOTP_SECRET=frailVictorianChild
     volumes:
       - ./server/backend:/app/backend
       - ./server/frontend:/app/frontend
