@@ -3,14 +3,16 @@ const express = require("express");      // Import Express for creating the serv
 const mysql = require("mysql2");         // Import MySQL2 for connecting to the database
 const path = require("path");            // Import `path` for handling file paths
 const bcrpyt = require('bcrypt');
+const crypto = require('crypto');
 
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
 const HOST = String(process.env.HOST); 
 const MYSQLHOST = String(process.env.MYSQLHOST); 
 const MYSQLUSER = String(process.env.MYSQLUSER);
-const MYSQLPASS = String(process.env.MYSQLPASS); 
+const MYSQLPASS = String(process.env.MYSQLPASS);
 const PEPPER = String(process.env.PEPPER);
+const TOTP_SECRET = String(process.env.TOTP_SECRET);
 const SQL = "SELECT * FROM users;"; 		
 
 const app = express(); // Create an Express application
@@ -70,7 +72,7 @@ app.post("/login", function (request, response) {
 					const storedSalt = results[0].salt;
 
 					// Construct password with stored salt from user, inputted password for login, and the PEPPER
-					const combinedPass = password + PEPPER;
+					const combinedPass = storedSalt + password + PEPPER;
 
 					// Use bcrypt to compare the combinedPassword with the stored password
 					bcrpyt.compare(combinedPass, storedPassword, function(err, result) {
@@ -101,6 +103,42 @@ app.post("/login", function (request, response) {
 			}
 	);
 });
+
+app.post("/totp", function (request, response) {
+    const { totp } = request.body;
+    const generatedCode = generateTOTP();
+
+	console.log('Sever generated code: ', generatedCode)
+	console.log('INputted code: ', totp)
+
+    if (generatedCode === totp) {
+        response.status(200);
+		response.send("Success");
+    } else {
+        response.status(401);
+		response.send("Invalid code");
+    }
+});
+
+
+function generateTOTP() {
+    // Get current timestamp rounded to nearest 30 seconds
+    const roundedTimestamp = Math.round(Date.now() / 30000) * 30000;
+
+    // Concatenate secret with timestamp
+    const concatenatedString = TOTP_SECRET + roundedTimestamp.toString();
+
+    // Hash the concatenated string
+    const hash = crypto.createHmac('sha256', Buffer.from(TOTP_SECRET)).update(concatenatedString).digest();
+
+    // Extract first 6 numeric characters from the hash
+    const totp = hash.slice(0, 6).toString('hex').replace(/\D/g, '');
+
+    console.log('Generated TOTP:', totp);
+
+    return totp;
+}
+
 
 
 app.post("/register", function (request, response) {
