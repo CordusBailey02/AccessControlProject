@@ -5,8 +5,10 @@ function login(username, password) {
     // Make a HTTP POST request to the /login endpoint in the backend
     // Set the headers to pass json data
     // Pass the json data in the body using JSON.stringify
-    fetch("http://" + parsedUrl.host + "/login", {
+    
+    fetch("http://" + parsedUrl.host + ":8001/login", {
     method: 'POST',
+    mode: "no-cors",
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

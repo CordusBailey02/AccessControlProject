@@ -7,8 +7,12 @@ document.getElementById('welcome-button')?.addEventListener('click', () => {
 var parsedUrl = new URL(window.location.href);
 
 function query() {
+    //Get token from cookie and place in HTTP header
     fetch("http://" + parsedUrl.host + "/query", {
         method: "GET",
+        eaders: {
+            'Authorization': JWT // token from cookie
+        },
         mode: "no-cors",
     })
     .then((resp) => resp.text())

@@ -114,10 +114,14 @@ app.post("/totp", function (request, response) {
     const generatedCode = generateTOTP();
 
 	console.log('Sever generated code: ', generatedCode)
-	console.log('INputted code: ', totp)
+	console.log('Inputted code: ', totp)
 
     if (generatedCode === totp) {
-        response.status(200);
+        //Creates and Sends Token
+        let userData = "SELECT * FROM users WHERE username=" + totp["username"] + ";"; //BUT WE ARENT GIVEN USERNAME?????
+        let token = jwt.sign(userData, JWTSECRET, {expiresIn: "1h"});
+        response.status(200).send(token);
+
 		response.send("Success");
     } else {
         response.status(401);
@@ -144,6 +148,9 @@ function generateTOTP() {
     return code;
 }
 
+app.post("/verifyJWT", function (request, response) {
+    //Verify that the token is current and was made by this server
+})
 
 
 app.post("/register", function (request, response) {

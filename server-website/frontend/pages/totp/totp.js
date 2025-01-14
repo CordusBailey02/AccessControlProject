@@ -6,8 +6,9 @@ function send_totp_code(totp) {
     // Make a HTTP POST request to the /login endpoint in the backend
     // Set the headers to pass json data
     // Pass the json data in the body using JSON.stringify
-    fetch("http://" + parsedUrl.host + "/totp", {
+    fetch("http://" + parsedUrl.host + ":8001/totp", {
     method: 'POST',
+    mode: "no-cors",
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -35,7 +36,9 @@ function send_totp_code(totp) {
         }
         // Else an unhandled error occurs
         else {
-            alert("Unknown Error")
+            //Take JWT that is given to you as part of 200 response and place it in a cookie
+            location.href = "http://" + parsedUrl.host + "/query.html";
+            //alert("Unknown Error")
         }
 
     })
