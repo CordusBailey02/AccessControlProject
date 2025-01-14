@@ -1,9 +1,10 @@
-DROP DATABASE IF EXISTS users;
-CREATE DATABASE users;
+DROP DATABASE IF EXISTS stuff;
+CREATE DATABASE stuff;
 
-use users;
+use stuff;
 
-CREATE TABLE users (
+-- Need to track some data
+CREATE TABLE things (
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     salt     VARCHAR(255) NOT NULL,
@@ -11,7 +12,8 @@ CREATE TABLE users (
     PRIMARY KEY (username)
 );
 
-INSERT INTO users
+-- Need to track some of that data
+INSERT INTO things
 VALUES("user", 
     "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C", 
     "3eb7", 
