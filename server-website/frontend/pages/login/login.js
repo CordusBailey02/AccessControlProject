@@ -9,7 +9,7 @@ function login(username, password) {
     console.log(password);
     fetch("http://" + parsedUrl.host + ":8001/login", {
     method: 'POST',
-    mode: "no-cors",
+    mode: "cors",
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

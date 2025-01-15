@@ -8,7 +8,7 @@ function send_totp_code(totp) {
     // Pass the json data in the body using JSON.stringify
     fetch("http://" + parsedUrl.host + ":8001/totp", {
     method: 'POST',
-    mode: "no-cors",
+    mode: "cors",
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

@@ -3,6 +3,7 @@ const express = require("express");      // Import Express for creating the serv
 const mysql = require("mysql2");         // Import MySQL2 for connecting to the database
 const path = require("path");            // Import `path` for handling file paths
 const unirest = require("unirest")
+const cors = require('cors');
 
 // Removed bbcrypt and crypto
 // Removed pepper TOTP 
@@ -17,6 +18,7 @@ const SQL = "SELECT * FROM things;";
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
+app.use(cors()); //Allows all cors
 
 // Create a connection to the MySQL database
 // New SQL database for "Stuff"

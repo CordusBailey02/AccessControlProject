@@ -7,6 +7,9 @@ const crypto = require('crypto');
 
 const {createHmac} = require("crypto")
 const jwt = require("jsonwebtoken")
+const cors = require('cors');
+
+
 
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
@@ -21,6 +24,8 @@ const SQL = "SELECT * FROM users;";
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
+app.use(cors()); //Allows all cors
+
 
 // Create a connection to the MySQL database
 let connection = mysql.createConnection({
