@@ -33,7 +33,8 @@ let connection = mysql.createConnection({
 // Serve static files from the frontend directory
 //app.use("/", express.static(path.join(__dirname, '../frontend')));
 
-// Route to fetch all users
+// Route to fetch all users 
+/*
 app.get("/query", function (request, response) {
 	connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
 		if (error) {
@@ -45,10 +46,12 @@ app.get("/query", function (request, response) {
 		}
 	});
 });
+*/
 
 // Doesnt need to change just need to reach out with a different port number
 // Route for login page
 app.post("/login", function (request, response) {
+	console.log(request);
 	const { username, password } = request.body; // Extract username and password from the request body
 	console.log("\nLOGIN Request: ", request.body)
 	// Dynamically construct the SQL query with user-provided credentials
