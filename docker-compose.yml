@@ -18,7 +18,7 @@ services:
       - MYSQLUSER=root
       - MYSQLPASS=example
       - PEPPER=ef79
-      - TOTPSECRET=frailVictorianChild
+      - TOTP_SECRET=frailVictorianChild
       - JWTSECRET=otherFrailVictorianChild
     volumes:
       - ./server-users/backend-users:/app/backend
