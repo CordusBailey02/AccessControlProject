@@ -40,7 +40,7 @@ app.use("/", express.static(path.join(__dirname, '../frontend')));
 function verifyJWT(JWT){
 	console.log("Verifying JWT")
 	unirest
-		.post('http://localhost:8001/jwt')
+		.post('http://server-users:80/jwt')
 		.headers({
             'Content-Type': 'application/json',
             'Accept': 'application/json',

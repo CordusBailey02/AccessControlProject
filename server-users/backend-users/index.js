@@ -207,8 +207,8 @@ app.post("/jwt", function (request, response) {
     //Verify that the token is current and was made by this server
 	const { jwt } = request.body;
 	console.log("verifyJWT value: ", jwt);
-	response.status(200);
-	response.send("Verification Successful.")
+	return response.status(200);
+	//return response.send("Verification Successful.")
 })
 
 
