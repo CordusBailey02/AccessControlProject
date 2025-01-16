@@ -18,7 +18,12 @@ const SQL = "SELECT * FROM things;";
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
-app.use(cors()); //Allows all cors
+app.use(
+	cors({ //enables cors for all origins with credentials
+	  	origin: true,
+	  	credentials: true
+	})
+);
 
 // Create a connection to the MySQL database
 // New SQL database for "Stuff"
@@ -32,11 +37,39 @@ let connection = mysql.createConnection({
 // Serve static files from the frontend directory
 app.use("/", express.static(path.join(__dirname, '../frontend')));
 
+function verifyJWT(JWT){
+	console.log("Verifying JWT")
+	var url = "0.0.0.0";
+	unirest
+		.post("http://" + url + ":8001/verifyJWT")
+		.headers({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+			'Origin': '*'
+        })
+		.send({"jwt": JWT})
+		.then((response) => {
+			if (response.error){
+				console.log("Error: ", response.error);
+			}
+			else {
+				console.log("Response: ", response.body);
+			}
+		})
+}
+
 // Route to fetch all users
 app.get("/query", function (request, response) {
 	// PART WE GOTTA FIGURE OUT with UNIREST
 	// Get token from header of http request
+	//console.log("Headers: " , request.headers);
+	const JWT = request.headers['authorization'].split(' ')[1];
 	// Send token to users server for verification (checks if token is not expired and was created by that server) "/verifyJWT"
+	console.log(JWT);
+
+	verifyJWT(JWT);
+
+
 	// if not successful send 401
 	// if successful :
 	

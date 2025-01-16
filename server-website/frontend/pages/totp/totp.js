@@ -7,16 +7,16 @@ function send_totp_code(totp) {
     // Set the headers to pass json data
     // Pass the json data in the body using JSON.stringify
     fetch("http://" + parsedUrl.host + ":8001/totp", {
-    method: 'POST',
-    mode: "cors",
-    credentials: "include", //Needed to pass cookies from session
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-        totp: totp
-    }),
+        method: 'POST',
+        mode: "cors",
+        credentials: "include", //Needed to pass cookies from session
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            totp: totp
+        }),
     })
     .then((response) => {
 

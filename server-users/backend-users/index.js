@@ -205,6 +205,10 @@ function generateTOTP() {
 
 app.post("/verifyJWT", function (request, response) {
     //Verify that the token is current and was made by this server
+	const { jwt } = request.body;
+	console.log("verifyJWT value: ", jwt);
+	response.status(200);
+	response.send("Verification Successful.")
 })
 
 

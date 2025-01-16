@@ -12,15 +12,16 @@ function query() {
         .split('; ')
         .find(row => row.startsWith('jwt='))
         ?.split('=')[1];
-        
+
     console.log("Token in HOME.JS: ", JWT);
 
     fetch("http://" + parsedUrl.host + "/query", {
         method: "GET",
-        Headers: {
-            'Authorization': JWT // JWT token from cookie
+        credentials: "include", //Needed to pass cookies from session
+        headers: {
+            'Authorization': `Bearer ${JWT}` // JWT token from cookie
         },
-        mode: "no-cors",
+        mode: "cors",
     })
     .then((resp) => resp.text())
     .then((data) => {
