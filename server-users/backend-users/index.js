@@ -205,10 +205,32 @@ function generateTOTP() {
 
 app.post("/jwt", function (request, response) {
     //Verify that the token is current and was made by this server
-	const { jwt } = request.body;
-	console.log("verifyJWT value: ", jwt);
-	return response.status(200);
-	//return response.send("Verification Successful.")
+	const { JWT } = request.body;
+	console.log("JWT Received: ", JWT);
+
+	try {
+		//decodes JWT with JWTSECRET
+		const decodedJWT = jwt.verify(JWT, JWTSECRET);
+		//console.log("Decoded Value",decodedJWT);
+		console.log("JWT is valid.")
+		return response.status(200).json({ 
+            message: 'Valid code' 
+        });
+
+	} catch (err) {
+		// Handle errors
+		if (err.name === 'TokenExpiredError') {
+			console.error("Token has expired!");
+		} else if (err.name === 'JsonWebTokenError') {
+			console.error("Invalid token!");
+		} else {
+			console.error("Token verification failed:", err.message);
+		}
+		return response.status(401).json({ 
+            message: err.name
+        });
+	}
+
 })
 
 

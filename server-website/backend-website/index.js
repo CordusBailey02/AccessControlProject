@@ -37,50 +37,58 @@ let connection = mysql.createConnection({
 // Serve static files from the frontend directory
 app.use("/", express.static(path.join(__dirname, '../frontend')));
 
-function verifyJWT(JWT){
-	console.log("Verifying JWT")
-	unirest
-		.post('http://server-users:80/jwt')
-		.headers({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-			'Origin': '*'
-        })
-		.send(JSON.stringify({"jwt": JWT}))
-		.then((response) => {
-			if (response.error){
-				console.log("Error: ", response.error);
-			}
-			else {
-				console.log("Response: ", response.body);
-			}
+// Unirest fetch call to verify JWT token
+async function verifyJWT(JWT){
+	return new Promise((result) => {
+		let validJWT = false;
+		unirest
+			.post('http://server-users:80/jwt')
+			.headers({
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+				'Origin': '*'
+			})
+			.send(JSON.stringify({"JWT": JWT}))
+			.then((response) => {
+				if (response.error){
+					console.log("Error: ", response.error);
+					return result(validJWT);
+				}
+				else {
+					console.log("Response: ", response.body);
+					validJWT = true;
+					return result(validJWT);
+
+				}
+			})
 		})
 }
 
 // Route to fetch all users
-app.get("/query", function (request, response) {
+app.get("/query", async function (request, response) {
 	// PART WE GOTTA FIGURE OUT with UNIREST
 	// Get token from header of http request
 	//console.log("Headers: " , request.headers);
 	const JWT = request.headers['authorization'].split(' ')[1];
 	// Send token to users server for verification (checks if token is not expired and was created by that server) "/verifyJWT"
-	console.log(JWT);
-
-	verifyJWT(JWT);
-
-
-	// if not successful send 401
-	// if successful :
 	
-	connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
-		if (error) {
-			console.error(error.message); // Log the error if the query fails
-			response.status(500).send("database error"); // Respond with a 500 status and an error message
-		} else {
-			console.log(results); // Log the query results
-			response.send(results); // Send the query results as the response
-		}
-	});
+	let validFlag = await verifyJWT(JWT);
+	
+	if (validFlag === true){
+		connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
+			if (error) {
+				console.error(error.message); // Log the error if the query fails
+				response.status(500).send("database error"); // Respond with a 500 status and an error message
+			} else {
+				console.log(results); // Log the query results
+				response.send(results); // Send the query results as the response
+			}
+		});
+	}
+	else {
+
+		
+	}
 });
 
 
