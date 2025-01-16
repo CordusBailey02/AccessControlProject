@@ -39,6 +39,7 @@ app.get("/query", function (request, response) {
 	// Send token to users server for verification (checks if token is not expired and was created by that server) "/verifyJWT"
 	// if not successful send 401
 	// if successful :
+	
 	connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
 		if (error) {
 			console.error(error.message); // Log the error if the query fails

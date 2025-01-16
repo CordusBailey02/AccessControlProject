@@ -10,6 +10,7 @@ function login(username, password) {
     fetch("http://" + parsedUrl.host + ":8001/login", {
     method: 'POST',
     mode: "cors",
+    credentials: "include", //Needed to pass session cookies
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

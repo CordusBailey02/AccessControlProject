@@ -9,6 +9,7 @@ function send_totp_code(totp) {
     fetch("http://" + parsedUrl.host + ":8001/totp", {
     method: 'POST',
     mode: "cors",
+    credentials: "include", //Needed to pass cookies from session
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -20,11 +21,17 @@ function send_totp_code(totp) {
     .then((response) => {
 
         // If response is 200, success login
-        if(response.status == 200)
-        {
-            window.loggedIn = true;
-            alert("Successfully Logged In")
-            window.navigateTo('/home')
+        if(response.status == 200) {
+            return response.json().then(data => {
+                // Get token from response and save as JWT constant
+                const JWT = data.token;
+                console.log("Token in TOTP.JS: ", JWT);
+                // Sets JWT token value into jwt cookie 
+                document.cookie = `jwt=${JWT}; path=/;`;
+                window.loggedIn = true;
+                alert("Successfully Logged In")
+                window.navigateTo('/home')
+            });
         }
         // If response is 401, password or username was incorrect
         else if(response.status == 401) {

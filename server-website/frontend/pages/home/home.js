@@ -7,11 +7,18 @@ document.getElementById('welcome-button')?.addEventListener('click', () => {
 var parsedUrl = new URL(window.location.href);
 
 function query() {
-    //Get token from cookie and place in HTTP header
+    // Gets jwt cookie and saves it as JWT variable
+    const JWT = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('jwt='))
+        ?.split('=')[1];
+        
+    console.log("Token in HOME.JS: ", JWT);
+
     fetch("http://" + parsedUrl.host + "/query", {
         method: "GET",
-        eaders: {
-            'Authorization': JWT // token from cookie
+        Headers: {
+            'Authorization': JWT // JWT token from cookie
         },
         mode: "no-cors",
     })

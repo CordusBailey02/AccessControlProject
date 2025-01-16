@@ -4,7 +4,7 @@ const mysql = require("mysql2");         // Import MySQL2 for connecting to the 
 const path = require("path");            // Import `path` for handling file paths
 const bcrpyt = require('bcrypt');
 const crypto = require('crypto');
-
+const session = require('express-session');
 const {createHmac} = require("crypto")
 const jwt = require("jsonwebtoken")
 const cors = require('cors');
@@ -24,7 +24,23 @@ const SQL = "SELECT * FROM users;";
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
-app.use(cors()); //Allows all cors
+app.use(
+	cors({ //enables cors for all origins with credentials
+	  	origin: true,
+	  	credentials: true
+	})
+);
+
+app.use( //session to store username to use in totp route
+    session({
+        secret: 'DontTellAnyoneThisSecretKey',
+        resave: false,
+        saveUninitialized: false,
+        cookie: { 
+			secure: false
+		}
+    })
+);
 
 
 // Create a connection to the MySQL database
@@ -56,9 +72,10 @@ app.get("/query", function (request, response) {
 // Doesnt need to change just need to reach out with a different port number
 // Route for login page
 app.post("/login", function (request, response) {
-	console.log(request);
 	const { username, password } = request.body; // Extract username and password from the request body
 	console.log("\nLOGIN Request: ", request.body)
+	//Record username in session cookie
+	request.session.username = username;
 	// Dynamically construct the SQL query with user-provided credentials
 	const loginQuery = "SELECT * FROM users WHERE username = ?";
 	connection.query(loginQuery, [username],
@@ -83,8 +100,6 @@ app.post("/login", function (request, response) {
 					// Get stored information for the user
 					const storedPassword = results[0].password;
 					const storedSalt = results[0].salt;
-					const storedUsername = results[0].username;
-					const storedEmail = results[0].email;
 					// Construct password with stored salt from user, inputted password for login, and the PEPPER
 					const combinedPass = storedSalt + password + PEPPER;
 
@@ -98,16 +113,11 @@ app.post("/login", function (request, response) {
 							response.send("Server Error"); 
 						}
 						// if result exists, we get a success login
-						else if(result) {
-							console.log(username, " logged in")
-							
-							//Record username and email in session
-							//request.session.username = storedUsername;
-							//request.session.email = storedEmail;
-
-							response.status(200)
-							response.send("Success")
-						}
+                        else if(result) {
+                            console.log(username, " logged in")
+                            response.status(200)
+                            response.send("Success")
+                        }
 						// Otherwise a unsuccessful login
 						else {
 							console.log("Password mismatch")
@@ -126,29 +136,51 @@ app.post("/login", function (request, response) {
 app.post("/totp", function (request, response) {
     const { totp } = request.body;
     const generatedCode = generateTOTP();
-
-	console.log('Sever generated code: ', generatedCode)
-	console.log('Inputted code: ', totp)
+    console.log('Server generated code: ', generatedCode)
+    console.log('Inputted code: ', totp)
 
     if (generatedCode === totp) {
-        //Creates and Sends Token
-		let token = jwt.sign(
-			{ 
-			  username: storedUsername,
-			  email: storedEmail
-			},
-			JWTSECRET,
-			{ expiresIn: "1h" }
-		  );
+        // CGets the username from the session cookie
+        const username = request.session.username;
+        
+        // Query the user database for user details
+        const query = 'SELECT username, email FROM users WHERE username = ?';
+        connection.query(query, [username], (error, results) => {
+            if (error) {
+                console.error('Database error:', error.message);
+                return response.status(500).json({ 
+                    message: 'Database error' 
+                });
+            }
 
-        let userData = "SELECT * FROM users WHERE username=" + totp["username"] + ";"; //BUT WE ARENT GIVEN USERNAME?????
-        //let token = jwt.sign(userData, JWTSECRET, {expiresIn: "1h"});
-        response.status(200).send(token);
+            if (results.length > 0) {
+                const { username, email } = results[0];
 
-		response.send("Success");
+                // Generate a JWT containing the username and email
+                const token = jwt.sign(
+                    { username, email },
+                    JWTSECRET,
+                    { expiresIn: '1h' } // Token expiration time
+                );
+
+				console.log('Token created successfully: ' , token);
+				//If created token successfully send 200 response with the token
+                return response.status(200).json({
+                    message: 'TOTP verified successfully',
+                    token: token
+                });
+            } else {
+				console.log('404');
+                return response.status(404).json({ 
+                    message: 'User not found' 
+                });
+            }
+        });
     } else {
-        response.status(401);
-		response.send("Invalid code");
+		console.log("Invalid TOTP Code")
+        response.status(401).json({ 
+            message: 'Invalid code' 
+        });
     }
 });
 
@@ -156,7 +188,7 @@ app.post("/totp", function (request, response) {
 function generateTOTP() {
     // Get current timestamp rounded to the nearest 30 seconds
     const timestamp = Math.floor(Date.now() / 1000 / 30) * 30;
-  
+
     // Concatenate the secret and timestamp
     const data = TOTP_SECRET + timestamp;
   
