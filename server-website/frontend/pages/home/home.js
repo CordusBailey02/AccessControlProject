@@ -14,7 +14,7 @@ function query() {
         ?.split('=')[1];
 
     console.log("Token in HOME.JS: ", JWT);
-
+    console.log(parsedUrl.host);
     fetch("http://" + parsedUrl.host + "/query", {
         method: "GET",
         credentials: "include", //Needed to pass cookies from session

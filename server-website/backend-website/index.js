@@ -39,15 +39,14 @@ app.use("/", express.static(path.join(__dirname, '../frontend')));
 
 function verifyJWT(JWT){
 	console.log("Verifying JWT")
-	var url = "0.0.0.0";
 	unirest
-		.post("http://" + url + ":8001/verifyJWT")
+		.get('http://0.0.0.0:8001/jwt')
 		.headers({
             'Content-Type': 'application/json',
             'Accept': 'application/json',
 			'Origin': '*'
         })
-		.send({"jwt": JWT})
+		.send(JSON.stringify({"jwt": JWT}))
 		.then((response) => {
 			if (response.error){
 				console.log("Error: ", response.error);
