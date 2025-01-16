@@ -83,7 +83,8 @@ app.post("/login", function (request, response) {
 					// Get stored information for the user
 					const storedPassword = results[0].password;
 					const storedSalt = results[0].salt;
-
+					const storedUsername = results[0].username;
+					const storedEmail = results[0].email;
 					// Construct password with stored salt from user, inputted password for login, and the PEPPER
 					const combinedPass = storedSalt + password + PEPPER;
 
@@ -99,6 +100,11 @@ app.post("/login", function (request, response) {
 						// if result exists, we get a success login
 						else if(result) {
 							console.log(username, " logged in")
+							
+							//Record username and email in session
+							//request.session.username = storedUsername;
+							//request.session.email = storedEmail;
+
 							response.status(200)
 							response.send("Success")
 						}
@@ -126,8 +132,17 @@ app.post("/totp", function (request, response) {
 
     if (generatedCode === totp) {
         //Creates and Sends Token
+		let token = jwt.sign(
+			{ 
+			  username: storedUsername,
+			  email: storedEmail
+			},
+			JWTSECRET,
+			{ expiresIn: "1h" }
+		  );
+
         let userData = "SELECT * FROM users WHERE username=" + totp["username"] + ";"; //BUT WE ARENT GIVEN USERNAME?????
-        let token = jwt.sign(userData, JWTSECRET, {expiresIn: "1h"});
+        //let token = jwt.sign(userData, JWTSECRET, {expiresIn: "1h"});
         response.status(200).send(token);
 
 		response.send("Success");
