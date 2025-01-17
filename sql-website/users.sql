@@ -5,16 +5,22 @@ use stuff;
 
 -- Need to track some data
 CREATE TABLE things (
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    salt     VARCHAR(255) NOT NULL,
-    email    VARCHAR(255) NOT NULL,
-    PRIMARY KEY (username)
+    thing1 VARCHAR(255) NOT NULL,
+    thing2 VARCHAR(255) NOT NULL,
+    thing3 VARCHAR(255) NOT NULL,
+    thing4 VARCHAR(255) NOT NULL,
+    PRIMARY KEY (thing1)
 );
 
 -- Need to track some of that data
 INSERT INTO things
-VALUES("user", 
-    "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C", 
-    "3eb7", 
-    "user@example.com");
+VALUES("thing1","thing2","thing3","thing4");
+
+INSERT INTO things
+VALUES("thing11","thing22","thing33","thing44");
+
+INSERT INTO things
+VALUES("thing111","thing222","thing333","thing444");
+
+INSERT INTO things
+VALUES("thing1111","thing2222","thing3333","thing4444");
