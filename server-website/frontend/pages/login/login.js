@@ -5,8 +5,12 @@ function login(username, password) {
     // Make a HTTP POST request to the /login endpoint in the backend
     // Set the headers to pass json data
     // Pass the json data in the body using JSON.stringify
-    fetch("http://" + parsedUrl.host + "/login", {
+    console.log(username);
+    console.log(password);
+    fetch("http://" + parsedUrl.host + ":8001/login", {
     method: 'POST',
+    mode: "cors",
+    credentials: "include", //Needed to pass session cookies
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -17,7 +21,8 @@ function login(username, password) {
     }),
     })
     .then((response) => {
-
+        console.log(response);
+        console.log(response.status);
         // If response is 200, success login
         if(response.status == 200)
         {
