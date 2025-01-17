@@ -7,18 +7,21 @@
 The web application depends on the following modules
 1. MySQL
 2. Express
-3. Bcrypt
+3. unirest
+4. cors
+5. bcrypt
+6. crypto
+7. jsonwebtoken
+8. express-session
 
-As per the `const SQL = "SELECT * FROM users;"` instruction on line 10 of `index.js`, the web application queries the MySQL database for all rows from the users table. This query is made when the button defined by lines 14-18 of the `index.html` file is clicked. 
 
 ## Endpoints
 
-The file named `index.js` in the ++backend++ directory defines the endpoints. There are 2 endpoints:
-| Endpoint | Information |
-| - |
-| /query | This is the endpoint for querying the MySQL database for all rows in the *users* table. |
-| /login  |  This is the endpoint for sending POST requests containing user sign-in information. The client receives a response in accordance the validity of their sign-in credentials. <br><br> If the user sends invalid credentials, they receive a response reading "invalid credentials"| 
-| /totp | Handles a POST request containing a TOTP code entered by the user for the user to check and verify. Response determined by if the TOTP code matches what the server has. |
+The file named `index.js` in the "backend-users" directory of "server-users" defines the endpoints. There are 3 endpoints: /login, /totp, and /jwt. These are the endpoints for handling all of the user management API tasks.
+
+/login is the endpoint for sending POST requests containing user sign-in information. The client receives a response in accordance the validity of their sign-in credentials. When a user sends a request to login, their username is saved as a session cookie to be used in the /totp route.
+<br><br> If the user sends invalid credentials, they receive a response reading "invalid credentials." /totp handles a POST request containing a TOTP code entered by the user for the user to check and verify. Response determined by if the TOTP code matches what the server has. Additionally, /totp now determines if the totp code matches the server's totp code, then we pull the user's username from the session cookie created during the login route. Then, using the user's username, we query their username and email and create a JWT encoded with the JWTSECRET, containing the user's email and username that expires in 1 hour.
+<br><br>Upon receiving a request from the query route that contains the user's JWT, /jwt verifies that the token was created using the JWTSECRET and is not expired.
 
 The endpoints are defined as such:
 ```js
@@ -133,6 +136,97 @@ app.post("/totp", function (request, response) {
         response.status(401).json({ 
             message: 'Invalid code' 
         });
+    }
+});
+
+app.post("/jwt", function (request, response) {
+    //Verify that the token is current and was made by this server
+	const { JWT } = request.body;
+	console.log("JWT Received: ", JWT);
+
+	try {
+		//decodes JWT with JWTSECRET
+		const decodedJWT = jwt.verify(JWT, JWTSECRET);
+		//console.log("Decoded Value",decodedJWT);
+		console.log("JWT is valid.")
+		return response.status(200).json({ 
+            message: 'Valid code' 
+        });
+
+	} catch (err) {
+		// Handle errors
+		if (err.name === 'TokenExpiredError') {
+			console.error("Token has expired!");
+		} else if (err.name === 'JsonWebTokenError') {
+			console.error("Invalid token!");
+		} else {
+			console.error("Token verification failed:", err.message);
+		}
+		return response.status(401).json({ 
+            message: err.name
+        });
+	}
+
+})
+```
+
+Similarly, the file named `index.js` in the "backend-website" directory of "server-website" defines an endpoint /query. This is the endpoints for handling all of the data API tasks and querying the "stuff" MySQL database.
+
+The /query endpoint handles requests from the website.  It starts by pulling the user's JWT token from the authorization header of the fetch API request.  It then uses a unirest post request to contact the /jwt route to verify the token.  If the token is valid, it returns a query of all the entries in the "stuff" MySQL database.
+
+The code for /query is defined as such:
+```js
+// Unirest fetch call to verify JWT token
+async function verifyJWT(JWT){
+    return new Promise((result) => {
+        let validJWT = false;
+        unirest
+            .post('http://server-users/jwt')
+            .headers({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Origin': '*'
+            })
+            .send(JSON.stringify({"JWT": JWT}))
+            .then((response) => {
+                if (response.error){
+                    console.log("Error: ", response.error);
+                    return result(validJWT);
+                }
+                else {
+                    console.log("Response: ", response.body);
+                    validJWT = true;
+                    return result(validJWT);
+
+                }
+            })
+        })
+}
+
+// Route to fetch all users
+app.get("/query", async function (request, response) {
+    // PART WE GOTTA FIGURE OUT with UNIREST
+    // Get token from header of http request
+    //console.log("Headers: " , request.headers);
+    const JWT = request.headers['authorization'].split(' ')[1];
+    // Send token to users server for verification (checks if token is not expired and was created by that server) "/verifyJWT"
+
+    let validFlag = await verifyJWT(JWT);
+
+    if (validFlag === true){
+        connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
+            if (error) {
+                console.error(error.message); // Log the error if the query fails
+                response.status(500).send("database error"); // Respond with a 500 status and an error message
+            } else {
+                console.log(results); // Log the query results
+                response.send(results); // Send the query results as the response
+            }
+        });
+    }
+    else {
+
+
     }
 });
 ```
