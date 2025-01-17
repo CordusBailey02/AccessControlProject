@@ -22,24 +22,14 @@ The file named `index.js` in the ++backend++ directory defines the endpoints. Th
 
 The endpoints are defined as such:
 ```js
-app.get("/query", function (request, response) {
-  connection.query(SQL, [true], (error, results, fields) => {
-    if (error) {
-      console.error(error.message);
-      response.status(500).send("database error");
-    } else {
-      console.log(results);
-      response.send(results);
-    }
-  });
-})
-
 // Route for login page
 app.post("/login", function (request, response) {
 	const { username, password } = request.body; // Extract username and password from the request body
-	console.log("Request: ", request.body)
+	console.log("\nLOGIN Request: ", request.body)
+	//Record username in session cookie
+	request.session.username = username;
 	// Dynamically construct the SQL query with user-provided credentials
-	const loginQuery = "SELECT * FROM users WHERE username = ?"
+	const loginQuery = "SELECT * FROM users WHERE username = ?";
 	connection.query(loginQuery, [username],
 			function (error, results, fields) { // Execute the query
 
@@ -62,7 +52,6 @@ app.post("/login", function (request, response) {
 					// Get stored information for the user
 					const storedPassword = results[0].password;
 					const storedSalt = results[0].salt;
-
 					// Construct password with stored salt from user, inputted password for login, and the PEPPER
 					const combinedPass = storedSalt + password + PEPPER;
 
@@ -76,17 +65,18 @@ app.post("/login", function (request, response) {
 							response.send("Server Error"); 
 						}
 						// if result exists, we get a success login
-						else if(result) {
-							console.log(username, " logged in")
-							response.status(200)
-							response.send("Success")
-						}
+                        else if(result) {
+                            console.log(username, " logged in")
+                            response.status(200)
+                            response.send("Success")
+                        }
 						// Otherwise a unsuccessful login
 						else {
 							console.log("Password mismatch")
 							response.status(401);
 							// Have to send back json (dictionary)
 							response.send("Unauthorized"); 
+							console.log("[Login] sql result:\n", results);
 						}
 					})
 				}
@@ -98,25 +88,54 @@ app.post("/login", function (request, response) {
 app.post("/totp", function (request, response) {
     const { totp } = request.body;
     const generatedCode = generateTOTP();
-
-	console.log('Sever generated code: ', generatedCode)
-	console.log('INputted code: ', totp)
+    console.log('Server generated code: ', generatedCode)
+    console.log('Inputted code: ', totp)
 
     if (generatedCode === totp) {
-        response.status(200);
-		response.send("Success");
+        // CGets the username from the session cookie
+        const username = request.session.username;
+        
+        // Query the user database for user details
+        const query = 'SELECT username, email FROM users WHERE username = ?';
+        connection.query(query, [username], (error, results) => {
+            if (error) {
+                console.error('Database error:', error.message);
+                return response.status(500).json({ 
+                    message: 'Database error' 
+                });
+            }
+
+            if (results.length > 0) {
+                const { username, email } = results[0];
+
+                // Generate a JWT containing the username and email
+                const token = jwt.sign(
+                    { username, email },
+                    JWTSECRET,
+                    { expiresIn: '1h' } // Token expiration time
+                );
+
+				console.log('Token created successfully: ' , token);
+				//If created token successfully send 200 response with the token
+                return response.status(200).json({
+                    message: 'TOTP verified successfully',
+                    token: token
+                });
+            } else {
+				console.log('404');
+                return response.status(404).json({ 
+                    message: 'User not found' 
+                });
+            }
+        });
     } else {
-        response.status(401);
-		response.send("Invalid code");
+		console.log("Invalid TOTP Code")
+        response.status(401).json({ 
+            message: 'Invalid code' 
+        });
     }
 });
 ```
-
-# Data Flow and Docker Orchestration Diagrams
-
-![data-flow.png](./data-flow.png)
-
-![DockerLayout.png](./DockerLayout.png)
 
 # Docker Compose
 
@@ -169,22 +188,34 @@ The web server depends on the bcrypt library to compare salted and peppered pass
 
 # Application Structure Overview
 
-**Containers:** The application consists of 2 containers
-1. a MySQL server container.
-2. A NodeJS application (server) container.
+**Containers:** The application consists of 4 containers
+1. server-website
+2. server-users
+3. sql-users
+4. sql-website
 
-The frontend of the server container has been restructured to allow for dynamic loading of page content to the index.html. This means when the user navigates or loads in new content, it gets loaded into the index.html page.
+### server-website
+
+"server-website" contains the frontend of the server container and has been restructured to allow for dynamic loading of page content to the index.html. This means when the user navigates or loads in new content, it gets loaded into the index.html page.
 
 The new structure is as follows. We retain the index.html for our main webpage to display to the user, our index.js to handle interactions to this main webpage as well as loading in other JavaScript files when necessary, our styles.css which contains our CSS for the entire site, and finally our /pages folder to contain new contents we can load into the main index.html.
 
-The pages folder contains folders of the different contents or pages we can display. Each folder inside of pages contains an .html and .js file to design the webpage and give functionality to the functions the html can call. As of now, we currently have three folders in the /pages directory: 'home', 'login', and 'register'.
+The pages folder contains folders of the different contents or pages we can display. Each folder inside of pages contains an .html and .js file to design the webpage and give functionality to the functions the html can call. As of now, we currently have four folders in the /pages directory: 'home', 'login', 'register', and 'totp'.
 
 The 'home' folder contains the .html code to have the user click the query button and return the data. The 'login' folder contains the .html for the login input from the user and the .js file to send the login API call to the backend to verify credentials. The 'register' folder container the .html code to collect registration information from the user and a .js file to send an API call to the backend endpoint /register to register a user.
 The 'totp' folder contains the page and sending logic to send off the TOTP code to the backend for it be verified.
 
-The backend of the server container depends on the Express framework, MySQL module, and additionally now the brcypt module for password hash and comparison. The backend now contains 3 endpoints for the frontend to interact with and get a response from: '/query', '/login', and '/register'.
+### server-users
 
-The **MySQL container** runs a MySQL server to be accessed by the web application. This container utilizes the file users.sql to create a database and a *users* table with some predefined data.
+The backend of the user authentication service is in "server-users," and it depends on the Express framework, jsonwebtoken, and  the brcypt module. Additionally, the backend how defines the API endpoints for the login, registration, and TOTP processes.
+
+### sql-users
+
+The sql-users container runs a MySQL server to be accessed by the web application. This container utilizes the file users.sql to create a database and a *users* table with some predefined data.
+
+### sql-website
+
+Similarly, the sql-website container is also a MySQL servers accessed by the web application. This container holds a database called 'stuff' with the table 'things.'  The table contains some unique data.
 
 # Steps Required to Access the Information
 
