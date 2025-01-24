@@ -51,24 +51,6 @@ let connection = mysql.createConnection({
 	database: "users" 
 });
 
-// Serve static files from the frontend directory
-//app.use("/", express.static(path.join(__dirname, '../frontend')));
-
-// Route to fetch all users 
-/*
-app.get("/query", function (request, response) {
-	connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
-		if (error) {
-			console.error(error.message); // Log the error if the query fails
-			response.status(500).send("database error"); // Respond with a 500 status and an error message
-		} else {
-			console.log(results); // Log the query results
-			response.send(results); // Send the query results as the response
-		}
-	});
-});
-*/
-
 // Doesnt need to change just need to reach out with a different port number
 // Route for login page
 app.post("/login", function (request, response) {
@@ -144,7 +126,7 @@ app.post("/totp", function (request, response) {
         const username = request.session.username;
         
         // Query the user database for user details
-        const query = 'SELECT username, email FROM users WHERE username = ?';
+        const query = 'SELECT username, email, role FROM users WHERE username = ?';
         connection.query(query, [username], (error, results) => {
             if (error) {
                 console.error('Database error:', error.message);
@@ -154,11 +136,11 @@ app.post("/totp", function (request, response) {
             }
 
             if (results.length > 0) {
-                const { username, email } = results[0];
+                const { username, email, role } = results[0];
 
                 // Generate a JWT containing the username and email
                 const token = jwt.sign(
-                    { username, email },
+                    { username, email, role },
                     JWTSECRET,
                     { expiresIn: '1h' } // Token expiration time
                 );
@@ -213,9 +195,7 @@ app.post("/jwt", function (request, response) {
 		const decodedJWT = jwt.verify(JWT, JWTSECRET);
 		//console.log("Decoded Value",decodedJWT);
 		console.log("JWT is valid.")
-		return response.status(200).json({ 
-            message: 'Valid code' 
-        });
+		return response.status(200).json(decodedJWT);
 
 	} catch (err) {
 		// Handle errors
