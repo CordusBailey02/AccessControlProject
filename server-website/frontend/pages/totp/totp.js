@@ -30,6 +30,7 @@ function send_totp_code(totp) {
                 document.cookie = `jwt=${JWT}; path=/;`;
                 window.loggedIn = true;
                 alert("Successfully Logged In")
+                toggleNavbarLoginRegister();
                 window.navigateTo('/home')
             });
         }
