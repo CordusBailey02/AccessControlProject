@@ -5,16 +5,12 @@ const path = require("path");            // Import `path` for handling file path
 const unirest = require("unirest")
 const cors = require('cors');
 
-// Removed bbcrypt and crypto
-// Removed pepper TOTP 
-
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
 const HOST = String(process.env.HOST); 
 const MYSQLHOST = String(process.env.MYSQLHOST); 
 const MYSQLUSER = String(process.env.MYSQLUSER);
-const MYSQLPASS = String(process.env.MYSQLPASS);
-const SQL = "SELECT * FROM things;"; 		
+const MYSQLPASS = String(process.env.MYSQLPASS);	
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
@@ -37,60 +33,197 @@ let connection = mysql.createConnection({
 // Serve static files from the frontend directory
 app.use("/", express.static(path.join(__dirname, '../frontend')));
 
-// Unirest fetch call to verify JWT token
-async function verifyJWT(JWT){
-	return new Promise((result) => {
-		let validJWT = false;
-		unirest
-			.post('http://server-users:80/jwt')
-			.headers({
+// Unirest call to verify the JWT with the auth service
+async function verifyJWT(JWT) {
+	try {
+		const response = await unirest
+			.post('http://server-users:80/jwt') // 'http://localhost:8001/jwt' would do the same
+			.header({
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
 				'Origin': '*'
 			})
 			.send(JSON.stringify({"JWT": JWT}))
-			.then((response) => {
-				if (response.error){
-					console.log("Error: ", response.error);
-					return result(validJWT);
-				}
-				else {
-					console.log("Response: ", response.body);
-					validJWT = true;
-					return result(validJWT);
 
-				}
-			})
-		})
+		// If an error, log it and return null
+		if(response.error) {
+			console.error("Error verifying JWT:", response.error)
+			return null;
+		}
+		// Else, return the decoded JWT
+		else {
+			console.log("Response from JWT verifcation:", response.body)
+			return response.body
+		}
+	}
+	// Catch any errors, return null
+	catch(error) {
+		console.error("Unexpected error during JWT verification:", error)
+		return null;
+	}
 }
 
-// Route to fetch all users
 app.get("/query", async function (request, response) {
-	// PART WE GOTTA FIGURE OUT with UNIREST
-	// Get token from header of http request
-	//console.log("Headers: " , request.headers);
-	const JWT = request.headers['authorization'].split(' ')[1];
-	// Send token to users server for verification (checks if token is not expired and was created by that server) "/verifyJWT"
-	
-	let validFlag = await verifyJWT(JWT);
-	
-	if (validFlag === true){
-		connection.query(SQL, [true], (error, results, fields) => { // Execute the SQL query
-			if (error) {
-				console.error(error.message); // Log the error if the query fails
-				response.status(500).send("database error"); // Respond with a 500 status and an error message
-			} else {
-				console.log(results); // Log the query results
-				response.send(results); // Send the query results as the response
-			}
-		});
-	}
-	else {
+	try {
+		//Extract token from Authorization header
+		const authHeader = request.headers['authorization'];
+		if(!authHeader) {
+			return response.status(401).send("Missing Authorization Header");
+		}
 
-		
+		const JWT = authHeader.split(' ')[1];
+		if(!JWT) {
+			return response.status(401).send("Invalid Authorization Header Format");
+		}
+
+		// Verify the JWT
+		const verificationResult = await verifyJWT(JWT);
+		if(!verificationResult || !verificationResult.role) {
+			return response.status(403).send("Token verification failed");
+		}
+
+		// List roles allowed to use this query
+		const allowedRoles = ['admin', 'user'];
+		console.log("User role:", verificationResult.role);
+
+		// Check if the user has the correct role
+		if(allowedRoles.includes(verificationResult.role)) {
+			const SQL_QUERY = "SELECT * FROM things;";
+
+			//Execute the sql query
+			connection.query(SQL_QUERY, function (error, results) {
+				// If error, return a 500 response
+				if(error) {
+					console.log("Database error:", error.message);
+					response.status(500).send("database error");
+				}
+				// Else, success and return a 200 status and the query results
+				else {
+					console.log("Query Results:", results); // Log the query results
+					response.status(200).send(results); // Send the query results as the response
+				}
+			});
+		}
+		// Send a 403 status and insuffcient permissons if user doesnt have correct role
+		else {
+			response.status(403).send("Insufficient permissions to perform this action");
+		}
+	}
+	// Catch any unexpected errors, return status 500 and internal server error
+	catch(error) {
+		console.error("Unexpected error in /query route:", error);
+		response.status(500).send("Internal server error");
+
 	}
 });
 
+app.get("/query2", async function (request, response) {
+	try {
+		//Extract token from Authorization header
+		const authHeader = request.headers['authorization'];
+		if(!authHeader) {
+			return response.status(401).send("Missing Authorization Header");
+		}
+
+		const JWT = authHeader.split(' ')[1];
+		if(!JWT) {
+			return response.status(401).send("Invalid Authorization Header Format");
+		}
+
+		// Verify the JWT
+		const verificationResult = await verifyJWT(JWT);
+		if(!verificationResult || !verificationResult.role) {
+			return response.status(403).send("Token verification failed");
+		}
+
+		// List roles allowed to use this query
+		const allowedRoles = ['admin', 'user'];
+		console.log("User role:", verificationResult.role);
+
+		// Check if the user has the correct role
+		if(allowedRoles.includes(verificationResult.role)) {
+			const SQL_QUERY = "SELECT * FROM normal_secrets;";
+
+			//Execute the sql query
+			connection.query(SQL_QUERY, function (error, results) {
+				// If error, return a 500 response
+				if(error) {
+					console.log("Database error:", error.message);
+					response.status(500).send("database error");
+				}
+				// Else, success and return a 200 status and the query results
+				else {
+					console.log("Query Results:", results); // Log the query results
+					response.status(200).send(results); // Send the query results as the response
+				}
+			});
+		}
+		// Send a 403 status and insuffcient permissons if user doesnt have correct role
+		else {
+			response.status(403).send("Insufficient permissions to perform this action");
+		}
+	}
+	// Catch any unexpected errors, return status 500 and internal server error
+	catch(error) {
+		console.error("Unexpected error in /query route:", error);
+		response.status(500).send("Internal server error");
+
+	}
+});
+
+app.get("/query3", async function (request, response) {
+	try {
+		//Extract token from Authorization header
+		const authHeader = request.headers['authorization'];
+		if(!authHeader) {
+			return response.status(401).send("Missing Authorization Header");
+		}
+
+		const JWT = authHeader.split(' ')[1];
+		if(!JWT) {
+			return response.status(401).send("Invalid Authorization Header Format");
+		}
+
+		// Verify the JWT
+		const verificationResult = await verifyJWT(JWT);
+		if(!verificationResult || !verificationResult.role) {
+			return response.status(403).send("Token verification failed");
+		}
+
+		// List roles allowed to use this query
+		const allowedRoles = ['admin', 'user'];
+		console.log("User role:", verificationResult.role);
+
+		// Check if the user has the correct role
+		if(allowedRoles.includes(verificationResult.role)) {
+			const SQL_QUERY = "SELECT * FROM super_secrets;";
+
+			//Execute the sql query
+			connection.query(SQL_QUERY, function (error, results) {
+				// If error, return a 500 response
+				if(error) {
+					console.log("Database error:", error.message);
+					response.status(500).send("database error");
+				}
+				// Else, success and return a 200 status and the query results
+				else {
+					console.log("Query Results:", results); // Log the query results
+					response.status(200).send(results); // Send the query results as the response
+				}
+			});
+		}
+		// Send a 403 status and insuffcient permissons if user doesnt have correct role
+		else {
+			response.status(403).send("Insufficient permissions to perform this action");
+		}
+	}
+	// Catch any unexpected errors, return status 500 and internal server error
+	catch(error) {
+		console.error("Unexpected error in /query route:", error);
+		response.status(500).send("Internal server error");
+
+	}
+});
 
 // Start the server on the specified HOST and PORT
 app.listen(PORT, HOST);
