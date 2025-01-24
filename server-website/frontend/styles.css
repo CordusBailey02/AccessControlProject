@@ -20,6 +20,9 @@ body {
     text-align: center;
 }
 
+/* 
+Used for the login, register, and totp forms for consistency
+*/
 .auth-form {
     background-color: white;
     border-radius: 8px;
@@ -29,13 +32,34 @@ body {
     margin: 20px 0;
 }
 
+/* 
+auth-form headers
+*/
 h2 {
     font-size: 24px;
     margin-bottom: 20px;
     color: #0073b1;
 }
 
-/* Form Inputs */
+/* 
+USED FOR FOOTER OF AUTH-FORM, SWITCHING FROM LOGIN TO REGISTER
+Formats the 'p' tags
+*/
+p {
+    margin-top: 10px;
+}
+/* Formats the 'a' tags in 'p' tags*/
+p a {
+    color: #0073b1;
+    text-decoration: none;
+}
+p a:hover {
+    text-decoration: underline;
+}
+
+/* 
+auth-form Inputs 
+*/
 input {
     padding: 10px 10px;
     margin: 15px auto;
@@ -80,28 +104,17 @@ nav {
     padding: 10px 20px;
 }
 
-nav a, .logout {
+/* Formats the 'a' and 'div' tags in the nav bar*/
+nav a, div{
     color: white;
     text-decoration: none;
     padding: 10px 20px;
     font-size: 18px;
 }
 
-nav a:hover, .logout:hover {
+/* Formats the hover over the nav bar button elements*/
+nav a:hover{
     background-color: #555;
     border-radius: 5px;
 }
 
-/* Toggle Link */
-p {
-    margin-top: 10px;
-}
-
-p a {
-    color: #0073b1;
-    text-decoration: none;
-}
-
-p a:hover {
-    text-decoration: underline;
-}
