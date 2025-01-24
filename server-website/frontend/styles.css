@@ -32,6 +32,41 @@ Used for the login, register, and totp forms for consistency
     margin: 20px 0;
 }
 
+/*
+Used for the home page title
+*/
+.homePageHeader h2, p {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: blueviolet;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Button Container Styling */
+.homePageButtons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Spacing between buttons */
+    padding: 20px;
+}
+
+/*
+Used for the query page titles
+*/
+.queryPageHeader h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color:darkgoldenrod;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 /* 
 auth-form headers
 */

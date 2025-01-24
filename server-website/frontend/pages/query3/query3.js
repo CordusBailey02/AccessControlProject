@@ -1,9 +1,3 @@
-// Get the current script element
-const scriptSrc = document.currentScript.src;
-// Extract just the file name
-const scriptFileName = scriptSrc.substring(scriptSrc.lastIndexOf('/') + 1);
-
-console.log(scriptFileName, " script was loaded...");
 
 var parsedUrl = new URL(window.location.href);
 

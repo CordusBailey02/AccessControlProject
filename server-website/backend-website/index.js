@@ -83,7 +83,7 @@ app.get("/query", async function (request, response) {
 		}
 
 		// List roles allowed to use this query
-		const allowedRoles = ['admin', 'user'];
+		const allowedRoles = ['user'];
 		console.log("User role:", verificationResult.role);
 
 		// Check if the user has the correct role
@@ -191,7 +191,7 @@ app.get("/query3", async function (request, response) {
 		}
 
 		// List roles allowed to use this query
-		const allowedRoles = ['admin', 'user'];
+		const allowedRoles = ['admin'];
 		console.log("User role:", verificationResult.role);
 
 		// Check if the user has the correct role
