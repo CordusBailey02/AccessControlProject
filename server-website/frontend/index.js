@@ -1,65 +1,216 @@
-document.addEventListener('DOMContentLoaded', () => { // Wait until the DOM is fully loaded before running the script
-	const appContent = document.getElementById('page-content'); // Get the element where page content will be dynamically loaded
-	// const navbar = document.getElementById('page-header'); // (Commented out) Get the element for the navigation bar
-	// const footer = document.getElementById('page-footer'); // (Commented out) Get the element for the page footer
+/*
+ * Listener for handling running the scripts and functions when the page loads
+ * Handles doing any setup necessary to make sure the user navigates properly
+ */
+document.addEventListener('DOMContentLoaded', function () {
 
-	// Function to handle navigation to different pages
-	function navigateTo(path) {
-		console.log('PATH TO GO TO', path);
-		const pagePath = path === '/' ? '/home' : path; // Use '/home' for the root path or retain the provided path
-		fetch("pages" + pagePath + pagePath + ".html") // Fetch the HTML content for the target page
-			.then(response => {
-				console.log('Response status:', response.status)
-				if (!response.ok) throw new Error('Page not found'); // If the response is not OK, throw an error
-				return response.text(); // Convert the response to text (HTML content)
-			})
-			.then(html => {
-				appContent.innerHTML = html; // Load the fetched HTML content into the page content element
-                if(loggedIn && path == '/home') {
-                    checkAndShowContent();
-                }
+	// Initialize global variables/functions
+	window.loggedIn = isLoggedIn();
+	window.navigateTo = navigateTo;
 
-				// Dynamically load the script for the page
-				const scriptPath = "pages" + pagePath + pagePath + ".js"; // Construct the path to the JavaScript file for the page
-				const scriptElement = document.createElement('script'); // Create a new script element
-				scriptElement.src = scriptPath; // Set the source of the script to the constructed path
-				scriptElement.onload = () => console.log(scriptPath + " loaded"); // Log a message when the script loads successfully
-				scriptElement.onerror = () => console.warn(scriptPath + " not found"); // Warn if the script fails to load
-				document.body.appendChild(scriptElement); // Append the script to the document body
-			})
-			.catch(() => {
-				appContent.innerHTML = '<h1>404 - Page Not Found</h1>'; // Display a 404 message if the page or script is not found
-			});
-	}
+	// Handle the initial page load
+	handleInitialRoute();
 
-	// Handle clicks on links with "data-route"
-	document.querySelectorAll('a[data-route]').forEach(link => { // Select all links with the 'data-route' attribute
-		link.addEventListener('click', event => { // Add a click event listener to each link
-			event.preventDefault(); // Prevent the default browser navigation behavior
-			var path = link.getAttribute('data-route'); // Get the 'href' attribute value of the clicked link
-			console.log("PATH: ", path); // Log the path to the console
-
-			// On click, navigate to the appropriate endpoint
-			if (path === '/') navigateTo("/home"); // If the path is '/', navigate to '/home'
-			else navigateTo(path); // Otherwise, navigate to the specified path
-		});
-	});
-
-
-
-	// Load the initial route
-	navigateTo(window.location.pathname === '/' ? '/login' : window.location.pathname); // (Commented out) Load the appropriate page for the initial route
-
-    // Window variables to be access by other js files
-    window.loggedIn = false;
-    window.navigateTo = navigateTo;
+	// Update the navbar/header UI based on login status
+	toggleNavbarLoginRegister();
 });
 
-// Function to toggle showing the query button and output text box for now
+/*
+ * Navigate to a specified path, dynamically loading its content and associated script.
+ * @param {string} path - The path to navigate to (example: '/home', '/login)
+*/
+async function navigateTo(path) {
+	try {
+		// If path is '/' then go to /home by default
+		let pagePath;
+		if(path === '/') {
+			pagePath = '/home';
+		}
+		// Otherwise, go to the path defined
+		else {
+			pagePath = path;
+		}
+
+		// Construct the URL to fetch the html page
+		const pageUrl = 'pages' + pagePath + pagePath + '.html';
+		console.log("Navigating to:", pageUrl);
+
+		// Fetch the page content
+		const response = await fetch(pageUrl);
+		if(!response.ok) {
+			throw new Error('Page not found');
+		}
+
+		// Update the page-content with the html file
+		const html = await response.text();
+		updatePageContent(html);
+
+		// Load in the corresponding javascript file
+		loadPageScript(pagePath);
+
+		// Store the last page the user was on, for refreshing page purposes
+		localStorage.setItem('currentPage', pagePath)
+
+		// Push the state to history, to work with back and forward arrows
+		history.replaceState({ path: pagePath }, '', location.href); 
+	}
+	// Throw a 404 error on the screen if the html file couldnt be found
+	catch(error) {
+		console.error(error.message);
+		updatePageContent('<h1>404 - Page Not Found</h1>');
+	}
+}
+
+/*
+ * Update the content of the main content for the page
+ * @param {string} html - The HTML content to display
+*/
+function updatePageContent(html) {
+	// Reference the page-content element and put the new html in the element
+	const appContent = document.getElementById('page-content');
+	appContent.innerHTML = html;
+
+	// If the user is logged in, check if the navbar needs to be updated to shown new buttons
+	if(window.loggedIn) {
+		checkAndShowContent();
+	}
+}
+
+/*
+ * Dynamically load the JavaScript file for the specified page
+ * @param {string} pagePath - The path to the JavaScript file
+*/
+function loadPageScript(pagePath) {
+	// Constructs path to the scripts
+	const scriptPath = 'pages' + pagePath + pagePath + '.js';
+	const scriptElement = document.createElement('script');
+	scriptElement.src = scriptPath;
+
+	// Loads the script and any errors that occur
+	scriptElement.onload = () => console.log(scriptPath, 'loaded');
+	scriptElement.onerror = () => console.error(scriptPath, 'not found');
+
+	// Append the javascript file to the scriptElement 
+	document.body.appendChild(scriptElement);
+}
+
+/*
+ * Handle the intial page load based on the login status and current path
+*/
+function handleInitialRoute() {
+	// Function to JWT token
+	const jwt = getCookie('jwt');
+
+	// Checks for last page visited, for page refreshse
+	const lastVisitedPage = localStorage.getItem('currentPage');
+
+	// If lastVisitedPage exists, go to that page
+	if(lastVisitedPage) {
+		navigateTo(lastVisitedPage);
+	}
+	// If no JWT(not logged in), go to /login
+	else if(!jwt) {
+		navigateTo('/login')
+	} 
+	// If user is logged in, go to /home
+	else if(window.loggedIn) {
+		navigateTo('/home')
+	}
+
+}
+
+/*
+ * Get the value of a specific cookie by name
+ * @param {string} name - The name of the cookie to get
+ * @returns {string|null} - The cookie value, or null if not found
+*/
+function getCookie(name) {
+	// Reference the cookies in the document
+	const cookieString = document.cookie;
+	const cookies = cookieString.split('; ');
+
+	// Go through the cookies until you find the one with the correct name (jwt in our case)
+	for (const cookie of cookies) {
+		const [key, value] = cookie.split('=');
+		if (key === name) {
+			return value;
+		}
+	}
+	return null;
+}
+
+/*
+ * Check if the user is logged in by verifying te presence of a JWT cookie
+ * @returns {boolean} - True if logged in, false otherwise.
+*/
+function isLoggedIn() {
+	// Gets the JWT cookie nad returns it if found, otherwise null
+	const token = getCookie('jwt'); 
+	return token !== null;
+}
+
+/*
+ * Function to toggle the login/register buttons on the navbar
+ * Disables login/register buttons if user is logged in and shows account/logout
+ */
+function toggleNavbarLoginRegister() {
+	// Make a reference to both sets up buttons (references the div they are in)
+	const accountInfo = document.querySelector('.account-info');
+	const loginRegister = document.querySelector('.login-register')
+
+	// If the user is logged in, display the accountInfo div and hide the loginRegister div
+	if (isLoggedIn()) {
+		accountInfo.style.display = 'block';
+		loginRegister.style.display = 'none';
+	// Else, do the opposite
+	} else {
+		accountInfo.style.display = 'none';
+		loginRegister.style.display = 'block';
+	}
+}
+
+/*
+ * Fuction to log the user out
+ */
+function logout() {
+    // Clear the JWT cookie by setting it with an expired date
+    document.cookie = 'jwt=; Max-Age=0; path=/';
+	// Remove the 'currentPage' from the localstorage
+	localStorage.removeItem('currentPage');
+	// Set the logged in state to false
+	window.loggedIn = false;
+
+    // Update the navbar to reflect logout
+    toggleNavbarLoginRegister();
+
+	// Navigate the user back to the login page
+	navigateTo('/login');
+}
+
+
+/*
+ * Function to toggle showing the query button and output text box, until the user is logged in
+ */
 function checkAndShowContent() {
+	// Makes reference to the div used to display the query button and text box
     const contentElement = document.querySelector('.query-content');
     
+	// If the 'style: display' is set to none, then change it to
     if (contentElement && contentElement.style.display === 'none') {
-        contentElement.style.display = '';
+        contentElement.style.display = 'block';
     }
 }
+
+/*
+ * Listener to handle the popstate for using the back and forward page buttons
+ * Uses the state history to navigate to pages without changing the url, but still dynamically loading pages 
+ */
+window.addEventListener('popstate', function(event) {
+    // Get the state data
+    const state = event.state;
+
+    if (state && state.path) {
+        // Navigate to the correct page based on the state
+        navigateTo(state.path);
+    }
+});
