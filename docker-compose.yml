@@ -1,16 +1,19 @@
 #version: '3'
 services:
-
   mysql-users:
     image: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=example
     volumes:
       - ./sql-users:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   server-users:
     build: ./server-users
-    depends_on:
-      - mysql-users
     environment:
       - HOST=0.0.0.0
       - PORT=80
@@ -24,6 +27,10 @@ services:
       - ./server-users/backend-users:/app/backend
     ports:
       - "8001:80"
+    depends_on:
+      mysql-users:
+        condition: service_healthy
+
   mysql-website:
     image: mysql
     environment:
@@ -35,10 +42,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+  
   server-website:
     build: ./server-website
-    depends_on:
-      - mysql-website
     environment:
       - HOST=0.0.0.0
       - PORT=80
@@ -50,3 +56,6 @@ services:
       - ./server-website/frontend:/app/frontend
     ports:
       - "80:80"
+    depends_on:
+      mysql-website:
+        condition: service_healthy
