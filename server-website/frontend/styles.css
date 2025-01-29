@@ -96,13 +96,13 @@ p a:hover {
 auth-form Inputs 
 */
 input {
-    padding: 10px 10px;
-    margin: 15px auto;
+    padding: 10px 30px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
     display: block;
-    width: 375px;
+    margin: 20px auto;
+    width: 82%;
 }
 
 input:focus {
