@@ -55,6 +55,9 @@ let connection = mysql.createConnection({
 
 // Route for inserting logs
 app.post("/log_entry", function (request, response) {
+
+	const { log_date, log_data, is_success } = request.body;
+	console.log("Logs Received: ", log_date, log_data, is_success);
 	
 	//Needs to accept
 		//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
@@ -67,10 +70,24 @@ app.post("/log_entry", function (request, response) {
 		//username    'who'      VARCHAR(255)
 
 	// Gets the username from the session cookie
+	// RETURNS UNDEFINED MUST FIX
 	const username = request.session.username;
+	console.log("Username: ", username);
 
-	//Needs to store data as new entry in SQL log table
+	//Store data as new entry in SQL log table
+	connection.connect(function(err) {
+		if (err) throw err;
+		console.log("Connected to logs");
+		
 
+		// Send log data
+		var query = "INSERT INTO logs (username, log_date, log_data, is_success) VALUES ?";
+		var querydata = [[MYSQLUSER, log_date, log_data, is_success]];
+		connection.query(query, [querydata], function (err, result) {
+			if (err) throw err;
+			console.log("Query Data: " + querydata);
+		});
+	});
 
 });
 
@@ -78,6 +95,7 @@ app.post("/log_entry", function (request, response) {
 // Route for retrieving logs
 app.post("/log_retrieve", function (request, response) {
 	
+	const { log_date } = request.body;
 
 	//Need to add RBAC code to this route (weekly assignment from last week)
 	//Make where only an admin can successfully retrieve logs with this route
@@ -86,7 +104,31 @@ app.post("/log_retrieve", function (request, response) {
 	// Gets the username from the session cookie
 	const username = request.session.username;
 
+	connection.connect(function(err) {
+		if (err) throw err;
+		console.log("Connected to logs for receive");
+		
 
+		// Send log data
+		var query = "SELECT * FROM logs";
+		connection.query(query, function (err, result) {
+			if (err) throw err;
+			console.log("Logs selected");
+
+			if(err) {
+				console.log("Error occurred")
+				response.status(500);
+				// Have to send back json (dictionary)
+				response.send("Server Error"); 
+			}
+			// if result exists, we return logs
+			else if(result) {
+				console.log("Sending: " + response.send(result));
+				//return response.status(200).json(result);
+				//return result;
+			}
+		});
+	});
 
 });
 
