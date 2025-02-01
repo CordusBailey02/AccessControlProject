@@ -12,6 +12,14 @@ CREATE TABLE users (
     PRIMARY KEY (username)
 );
 
+CREATE TABLE logs (
+    uid CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    username VARCHAR(255) NOT NULL,
+    log_date DATETIME NOT NULL,
+    log_data VARCHAR(255) NOT NULL, 
+    is_success TINYINT(1) NOT NULL -- TINYINT(1) is used for a boolean value 1 = True, 0 = False
+);
+
 INSERT INTO users
 VALUES("user", 
     "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C",
