@@ -15,7 +15,7 @@ CREATE TABLE users (
 CREATE TABLE logs (
     uid CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(255) NOT NULL,
-    log_date DATETIME NOT NULL,    -- DATETIME format: "YYYY-MM-DD HH:MM:SS"
+    log_date DATETIME NOT NULL,    -- DATETIME format: "YYYY-MM-DD HH:MM:SS" (might need to make "Human Readable")
     log_data VARCHAR(255) NOT NULL, 
     is_success TINYINT(1) NOT NULL -- TINYINT(1) is used for a boolean value 1 = True, 0 = False
 );
