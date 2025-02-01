@@ -63,6 +63,21 @@ async function verifyJWT(JWT) {
 	}
 }
 
+//function to get the MYSQL formated datetime
+function datetime() {
+	const now = new Date();
+  
+	const year = now.getFullYear();
+	// getMonth() returns a zero-indexed month so we add 1 and pad with a leading zero if needed
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	const hours = String(now.getHours()).padStart(2, '0');
+	const minutes = String(now.getMinutes()).padStart(2, '0');
+	const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+	return '${year}-${month}-${day} ${hours}:${minutes}:${seconds}';
+  }
+
 app.get("/query", async function (request, response) {
 	try {
 		//Extract token from Authorization header
@@ -85,6 +100,34 @@ app.get("/query", async function (request, response) {
 		// List roles allowed to use this query
 		const allowedRoles = ['user'];
 		console.log("User role:", verificationResult.role);
+
+
+
+////////////////////////////////////////////////////////////////////////
+		
+		//Call /log_entry 
+			//Send over the data for
+				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
+				//log_data   'what'     VARCHAR(255)
+				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
+
+		//log_date variable creation
+		var log_date = datetime();  
+		console.log(log_date);
+
+		//log_data variable creation
+		var log_data = "query_1_data";
+
+		//is_success variable creation
+		if(allowedRoles.includes(verificationResult.role)) {
+			var is_success = 1;
+		}
+		else{
+			var is_success = 0;
+		}
+
+////////////////////////////////////////////////////////////////////////
+
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
@@ -140,6 +183,33 @@ app.get("/query2", async function (request, response) {
 		const allowedRoles = ['admin', 'user'];
 		console.log("User role:", verificationResult.role);
 
+
+////////////////////////////////////////////////////////////////////////
+		
+		//Call /log_entry 
+			//Send over the data for
+				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
+				//log_data   'what'     VARCHAR(255)
+				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
+
+		//log_date variable creation
+		var log_date = datetime();  
+		console.log(log_date);
+
+		//log_data variable creation
+		var log_data = "query_2_data";
+
+		//is_success variable creation
+		if(allowedRoles.includes(verificationResult.role)) {
+			var is_success = 1;
+		}
+		else{
+			var is_success = 0;
+		}
+
+		
+////////////////////////////////////////////////////////////////////////
+
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
 			const SQL_QUERY = "SELECT * FROM normal_secrets;";
@@ -193,6 +263,33 @@ app.get("/query3", async function (request, response) {
 		// List roles allowed to use this query
 		const allowedRoles = ['admin'];
 		console.log("User role:", verificationResult.role);
+
+
+////////////////////////////////////////////////////////////////////////
+		
+		//Call /log_entry 
+			//Send over the data for
+				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
+				//log_data   'what'     VARCHAR(255)
+				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
+
+		//log_date variable creation
+		var log_date = datetime();  
+
+		//log_data variable creation
+		var log_data = "query_3_data";
+
+		//is_success variable creation
+		if(allowedRoles.includes(verificationResult.role)) {
+			var is_success = 1;
+		}
+		else{
+			var is_success = 0;
+		}
+
+		
+////////////////////////////////////////////////////////////////////////
+
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {

@@ -57,21 +57,23 @@ let connection = mysql.createConnection({
 app.post("/log_entry", function (request, response) {
 	
 	//Needs to accept
-		//username   'who'      VARCHAR(255)
 		//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
 		//log_data   'what'     VARCHAR(255)
 		//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
 
-	//Needs to output/return
-		//uid         'UUID'    CHAR(36) 
+	
+	//Needs to generate
+		//uid         'UUID'    CHAR(36)       (Has a default function in the users.sql file that we can use)
+		//username    'who'      VARCHAR(255)
+
+	// Gets the username from the session cookie
+	const username = request.session.username;
+
+	//Needs to store data as new entry in SQL log table
+
 
 });
 
-///////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////
 
 // Route for retrieving logs
 app.post("/log_retrieve", function (request, response) {
@@ -79,7 +81,11 @@ app.post("/log_retrieve", function (request, response) {
 
 	//Need to add RBAC code to this route (weekly assignment from last week)
 	//Make where only an admin can successfully retrieve logs with this route
-	//If this route is used => then make a log entry
+	//If this route is used => then make a log entry by calling /log_entry
+
+	// Gets the username from the session cookie
+	const username = request.session.username;
+
 
 
 });
@@ -158,7 +164,7 @@ app.post("/totp", function (request, response) {
     console.log('Inputted code: ', totp)
 
     if (generatedCode === totp) {
-        // CGets the username from the session cookie
+        // Gets the username from the session cookie
         const username = request.session.username;
         
         // Query the user database for user details
