@@ -22,7 +22,7 @@ CREATE TABLE logs (
 
 INSERT INTO users
 VALUES("user", 
-    "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C",
+    "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C", -- Password: 'pass'
     "user",
     "3eb7", 
     "user@example.com");
