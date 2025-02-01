@@ -51,6 +51,42 @@ let connection = mysql.createConnection({
 	database: "users" 
 });
 
+///////////////////////////////////////////////////////////////////////
+
+// Route for inserting logs
+app.post("/log_entry", function (request, response) {
+	
+	//Needs to accept
+		//username   'who'      VARCHAR(255)
+		//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
+		//log_data   'what'     VARCHAR(255)
+		//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
+
+	//Needs to output/return
+		//uid         'UUID'    CHAR(36) 
+
+});
+
+///////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////
+
+// Route for retrieving logs
+app.post("/log_retrieve", function (request, response) {
+	
+
+	//Need to add RBAC code to this route (weekly assignment from last week)
+	//Make where only an admin can successfully retrieve logs with this route
+	//If this route is used => then make a log entry
+
+
+});
+
+///////////////////////////////////////////////////////////////////////
+
+
 // Doesnt need to change just need to reach out with a different port number
 // Route for login page
 app.post("/login", function (request, response) {
