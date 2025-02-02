@@ -40,8 +40,6 @@ app.use( //session to store username to use in totp route
     })
 );
 
-//const jar = unirest.jar(true);
-
 // Create a connection to the MySQL database
 let connection = mysql.createConnection({
 	host: MYSQLHOST, 
@@ -50,35 +48,17 @@ let connection = mysql.createConnection({
 	database: "users" 
 });
 
-///////////////////////////////////////////////////////////////////////
-
 // Route for inserting logs
 app.post("/log_entry", function (request, response) {
 
 	const { username, log_date, log_data, is_success } = request.body;
 	console.log("requestbody log_entry: ", request.body);
 	console.log("Logs Received: ", username, log_date, log_data, is_success);
-	
-	//Needs to accept
-		//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
-		//log_data   'what'     VARCHAR(255)
-		//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
-
-	
-	//Needs to generate
-		//uid         'UUID'    CHAR(36)       (Has a default function in the users.sql file that we can use)
-		//username    'who'      VARCHAR(255)
-
-	// Gets the username from the session cookie
-	// RETURNS UNDEFINED MUST FIX
-	//var username = request.session.username;
-	console.log("Username: ", username);
 
 	//Store data as new entry in SQL log table
 	connection.connect(function(err) {
 		if (err) throw err;
 		console.log("Connected to logs");
-		
 
 		// Send log data
 		var query = "INSERT INTO logs (username, log_date, log_data, is_success) VALUES ?";
@@ -91,33 +71,20 @@ app.post("/log_entry", function (request, response) {
 
 });
 
-
 // Route for retrieving logs
 app.post("/log_retrieve", function (request, response) {
 	
 	const { log_date } = request.body;
-
-	//Need to add RBAC code to this route (weekly assignment from last week)
-	//Make where only an admin can successfully retrieve logs with this route
-	//If this route is used => then make a log entry by calling /log_entry
-	//Extract token from Authorization header
 	
 	const authHeader = request.headers['authorization'];
 	if(!authHeader) {
 		console.log("No Auth Header from logs");
 	}
-	
-
-	//const username = authHeader.split(' ')[1];
-	
-	// Gets the username from the session cookie
-	//var username = request.session.username;
 
 	connection.connect(function(err) {
 		if (err) throw err;
 		console.log("Connected to logs for receive");
 		
-
 		// Send log data
 		var query = "SELECT * FROM logs";
 		connection.query(query, function (err, result) {
@@ -133,16 +100,11 @@ app.post("/log_retrieve", function (request, response) {
 			// if result exists, we return logs
 			else if(result) {
 				console.log("Sending: " + response.send(result));
-				//return response.status(200).json(result);
-				//return result;
 			}
 		});
 	});
 
 });
-
-///////////////////////////////////////////////////////////////////////
-
 
 // Doesnt need to change just need to reach out with a different port number
 // Route for login page
@@ -349,8 +311,6 @@ app.post("/register", function (request, response) {
 			)
 		})
 	})
-	
-	
 })
 
 // Start the server on the specified HOST and PORT

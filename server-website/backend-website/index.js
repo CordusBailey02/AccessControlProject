@@ -12,8 +12,6 @@ const MYSQLHOST = String(process.env.MYSQLHOST);
 const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);	
 
-const jar = unirest.jar(true);
-
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
 app.use(
@@ -40,7 +38,6 @@ async function verifyJWT(JWT) {
 	try {
 		const response = await unirest
 			.post('http://server-users:80/jwt') // 'http://localhost:8001/jwt' would do the same
-			.jar(jar)
 			.header({
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
@@ -87,7 +84,6 @@ async function insertLogs(username, log_date, log_data, is_success) {
 	try {
 		const response = await unirest
 			.post('http://server-users:80/log_entry') // 'http://localhost:8001/jwt' would do the same
-			.jar(jar) //cookie jar?
 			.header({
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
@@ -141,16 +137,6 @@ app.get("/query", async function (request, response) {
 		const allowedRoles = ['user'];
 		console.log("User role:", verificationResult.role);
 
-
-
-////////////////////////////////////////////////////////////////////////
-		
-		//Call /log_entry 
-			//Send over the data for
-				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
-				//log_data   'what'     VARCHAR(255)
-				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
-
 		//log_date variable creation
 		var log_date = datetime();  
 		console.log(log_date);
@@ -168,8 +154,6 @@ app.get("/query", async function (request, response) {
 
 		// Log to sql logs
 		insertLogs(username, log_date, log_data, is_success);
-////////////////////////////////////////////////////////////////////////
-
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
@@ -230,15 +214,6 @@ app.get("/query2", async function (request, response) {
 		const allowedRoles = ['admin', 'user'];
 		console.log("User role:", verificationResult.role);
 
-
-////////////////////////////////////////////////////////////////////////
-		
-		//Call /log_entry 
-			//Send over the data for
-				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
-				//log_data   'what'     VARCHAR(255)
-				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
-
 		//log_date variable creation
 		var log_date = datetime();  
 		console.log(log_date);
@@ -256,7 +231,6 @@ app.get("/query2", async function (request, response) {
 
 		// Log to sql logs
 		insertLogs(username, log_date, log_data, is_success);
-////////////////////////////////////////////////////////////////////////
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
@@ -317,15 +291,6 @@ app.get("/query3", async function (request, response) {
 		const allowedRoles = ['admin'];
 		console.log("User role:", verificationResult.role);
 
-
-////////////////////////////////////////////////////////////////////////
-		
-		//Call /log_entry 
-			//Send over the data for
-				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
-				//log_data   'what'     VARCHAR(255)
-				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
-
 		//log_date variable creation
 		var log_date = datetime();  
 
@@ -342,8 +307,6 @@ app.get("/query3", async function (request, response) {
 
 		// Log to sql logs
 		insertLogs(username, log_date, log_data, is_success);
-////////////////////////////////////////////////////////////////////////
-
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
@@ -404,15 +367,6 @@ app.get("/logs", async function (request, response) {
 		const allowedRoles = ['admin'];
 		console.log("User role:", verificationResult.role);
 
-
-////////////////////////////////////////////////////////////////////////
-		
-		//Call /log_entry 
-			//Send over the data for
-				//log_date   'when'     DATETIME      "YYYY-MM-DD HH:MM:SS"
-				//log_data   'what'     VARCHAR(255)
-				//is_success 'success'  TINYINT(1)    "1 = True, 0 = False"
-
 		//log_date variable creation
 		var log_date = datetime();  
 
@@ -429,7 +383,6 @@ app.get("/logs", async function (request, response) {
 		
 		// Log to sql logs
 		insertLogs(username, log_date, log_data, is_success);
-////////////////////////////////////////////////////////////////////////
 
 
 		// Check if the user has the correct role
