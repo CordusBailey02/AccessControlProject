@@ -25,9 +25,11 @@ function send_totp_code(totp) {
             return response.json().then(data => {
                 // Get token from response and save as JWT constant
                 const JWT = data.token;
+                const user = data.username;
                 console.log("Token in TOTP.JS: ", JWT);
                 // Sets JWT token value into jwt cookie 
                 document.cookie = `jwt=${JWT}; path=/;`;
+                document.cookie = `user=${user}; path=/;`;
                 window.loggedIn = true;
                 alert("Successfully Logged In")
                 toggleNavbarLoginRegister();

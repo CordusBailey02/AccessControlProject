@@ -1,3 +1,23 @@
+<head>
+    <style>
+        table {
+            color: black;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+        table th {
+            background-color: blue;
+            color: white;
+        }
+        table tbody tr:hover {
+            background-color: coral;
+            
+        }
+    </style>
+</head>
 <body>
     <div class="queryPageHeader">
         <h2>Logs retreival only for admin users</h2>
@@ -6,6 +26,7 @@
     <div class="query-content" style="display: none;">
         <button class="button" onclick="logs()">Logs</button>
         <p></p>
-        <textarea id="response" rows="20" cols="45" placeholder="Database Results"></textarea>
+        <!--<textarea id="response" rows="20" cols="45" placeholder="Database Results"></textarea>-->
+        <div id="response"></div>
     </div>
 </body>

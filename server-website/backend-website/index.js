@@ -12,6 +12,8 @@ const MYSQLHOST = String(process.env.MYSQLHOST);
 const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);	
 
+const jar = unirest.jar(true);
+
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
 app.use(
@@ -38,6 +40,7 @@ async function verifyJWT(JWT) {
 	try {
 		const response = await unirest
 			.post('http://server-users:80/jwt') // 'http://localhost:8001/jwt' would do the same
+			.jar(jar)
 			.header({
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
@@ -79,16 +82,18 @@ function datetime() {
   }
 
 // Connects to the logs table and queries log data
-async function insertLogs(log_date, log_data, is_success) {
+async function insertLogs(username, log_date, log_data, is_success) {
+	console.log("Username InsertLogs: ",username);
 	try {
 		const response = await unirest
 			.post('http://server-users:80/log_entry') // 'http://localhost:8001/jwt' would do the same
+			.jar(jar) //cookie jar?
 			.header({
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
 				'Origin': '*'
 			})
-			.send(JSON.stringify({"log_date": log_date, "log_data": log_data, "is_success": is_success}))
+			.send(JSON.stringify({"username": username, "log_date": log_date, "log_data": log_data, "is_success": is_success}))
 
 		// If an error, log it and return null
 		if(response.error) {
@@ -119,6 +124,11 @@ app.get("/query", async function (request, response) {
 		const JWT = authHeader.split(' ')[1];
 		if(!JWT) {
 			return response.status(401).send("Invalid Authorization Header Format");
+		}
+
+		const username = authHeader.split(' ')[2];
+		if(!username) {
+			console.log("no username!")
 		}
 
 		// Verify the JWT
@@ -157,7 +167,7 @@ app.get("/query", async function (request, response) {
 		}
 
 		// Log to sql logs
-		insertLogs(log_date, log_data, is_success);
+		insertLogs(username, log_date, log_data, is_success);
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -205,6 +215,11 @@ app.get("/query2", async function (request, response) {
 			return response.status(401).send("Invalid Authorization Header Format");
 		}
 
+		const username = authHeader.split(' ')[2];
+		if(!username) {
+			console.log("no username!")
+		}
+
 		// Verify the JWT
 		const verificationResult = await verifyJWT(JWT);
 		if(!verificationResult || !verificationResult.role) {
@@ -240,7 +255,7 @@ app.get("/query2", async function (request, response) {
 		}
 
 		// Log to sql logs
-		insertLogs(log_date, log_data, is_success);
+		insertLogs(username, log_date, log_data, is_success);
 ////////////////////////////////////////////////////////////////////////
 
 		// Check if the user has the correct role
@@ -287,6 +302,11 @@ app.get("/query3", async function (request, response) {
 			return response.status(401).send("Invalid Authorization Header Format");
 		}
 
+		const username = authHeader.split(' ')[2];
+		if(!username) {
+			console.log("no username!")
+		}
+		console.log("userToken: ",username)
 		// Verify the JWT
 		const verificationResult = await verifyJWT(JWT);
 		if(!verificationResult || !verificationResult.role) {
@@ -321,7 +341,7 @@ app.get("/query3", async function (request, response) {
 		}
 
 		// Log to sql logs
-		insertLogs(log_date, log_data, is_success);
+		insertLogs(username, log_date, log_data, is_success);
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -369,6 +389,11 @@ app.get("/logs", async function (request, response) {
 			return response.status(401).send("Invalid Authorization Header Format");
 		}
 
+		const username = authHeader.split(' ')[2];
+		if(!username) {
+			console.log("no username!")
+		}
+		console.log("userToken: ",username);
 		// Verify the JWT
 		const verificationResult = await verifyJWT(JWT);
 		if(!verificationResult || !verificationResult.role) {
@@ -401,9 +426,9 @@ app.get("/logs", async function (request, response) {
 		else{
 			var is_success = 0;
 		}
-
+		
 		// Log to sql logs
-		insertLogs(log_date, log_data, is_success);
+		insertLogs(username, log_date, log_data, is_success);
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -411,11 +436,13 @@ app.get("/logs", async function (request, response) {
 		if(allowedRoles.includes(verificationResult.role)) {
 			const logResponse = await unirest
 				.post('http://server-users:80/log_retrieve') // 'http://localhost:8001/jwt' would do the same
+				
 				.header({
 					'Content-Type': 'application/json',
 					'Accept': 'application/json',
 					'Origin': '*'
 				})
+				.header('Authorization',`Bearer ${username}`) // JWT token from cookie)
 				.send(JSON.stringify({"log_date": log_date}))
 		
 			// If an error, log it and return null

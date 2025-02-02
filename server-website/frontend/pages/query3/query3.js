@@ -8,13 +8,18 @@ function query3() {
         .find(row => row.startsWith('jwt='))
         ?.split('=')[1];
 
+    const user = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user='))
+        ?.split('=')[1];
+
     console.log("Token in HOME.JS: ", JWT);
     console.log(parsedUrl.host);
     fetch("http://" + parsedUrl.host + "/query3", {
         method: "GET",
         credentials: "include", //Needed to pass cookies from session
         headers: {
-            'Authorization': `Bearer ${JWT}` // JWT token from cookie
+            'Authorization': `Bearer ${JWT} ${user}`, // JWT token from cookie
         },
         mode: "cors",
     })
