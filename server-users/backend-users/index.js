@@ -9,8 +9,6 @@ const {createHmac} = require("crypto")
 const jwt = require("jsonwebtoken")
 const cors = require('cors');
 
-
-
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
 const HOST = String(process.env.HOST); 
@@ -42,13 +40,70 @@ app.use( //session to store username to use in totp route
     })
 );
 
-
 // Create a connection to the MySQL database
 let connection = mysql.createConnection({
 	host: MYSQLHOST, 
 	user: MYSQLUSER, 
 	password: MYSQLPASS, 
 	database: "users" 
+});
+
+// Route for inserting logs
+app.post("/log_entry", function (request, response) {
+
+	const { username, log_date, log_data, is_success } = request.body;
+	console.log("requestbody log_entry: ", request.body);
+	console.log("Logs Received: ", username, log_date, log_data, is_success);
+
+	//Store data as new entry in SQL log table
+	connection.connect(function(err) {
+		if (err) throw err;
+		console.log("Connected to logs");
+
+		// Send log data
+		var query = "INSERT INTO logs (username, log_date, log_data, is_success) VALUES ?";
+		var querydata = [[username, log_date, log_data, is_success]];
+		connection.query(query, [querydata], function (err, result) {
+			if (err) throw err;
+			console.log("Query Data: " + querydata);
+		});
+	});
+
+});
+
+// Route for retrieving logs
+app.post("/log_retrieve", function (request, response) {
+	
+	const { log_date } = request.body;
+	
+	const authHeader = request.headers['authorization'];
+	if(!authHeader) {
+		console.log("No Auth Header from logs");
+	}
+
+	connection.connect(function(err) {
+		if (err) throw err;
+		console.log("Connected to logs for receive");
+		
+		// Send log data
+		var query = "SELECT * FROM logs";
+		connection.query(query, function (err, result) {
+			if (err) throw err;
+			console.log("Logs selected");
+
+			if(err) {
+				console.log("Error occurred")
+				response.status(500);
+				// Have to send back json (dictionary)
+				response.send("Server Error"); 
+			}
+			// if result exists, we return logs
+			else if(result) {
+				console.log("Sending: " + response.send(result));
+			}
+		});
+	});
+
 });
 
 // Doesnt need to change just need to reach out with a different port number
@@ -123,9 +178,10 @@ app.post("/totp", function (request, response) {
     console.log('Inputted code: ', totp)
 
     if (generatedCode === totp) {
-        // CGets the username from the session cookie
-        const username = request.session.username;
-        
+        // Gets the username from the session cookie
+        var username = request.session.username;
+		
+        console.log("username: ", username);
         // Query the user database for user details
         const query = 'SELECT username, email, role FROM users WHERE username = ?';
         connection.query(query, [username], (error, results) => {
@@ -150,7 +206,8 @@ app.post("/totp", function (request, response) {
 				//If created token successfully send 200 response with the token
                 return response.status(200).json({
                     message: 'TOTP verified successfully',
-                    token: token
+                    token: token,
+					username: username
                 });
             } else {
 				console.log('404');
@@ -255,8 +312,6 @@ app.post("/register", function (request, response) {
 			)
 		})
 	})
-	
-	
 })
 
 // Start the server on the specified HOST and PORT
