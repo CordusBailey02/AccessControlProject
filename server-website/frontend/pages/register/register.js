@@ -2,7 +2,7 @@ var parsedUrl = new URL(window.location.href);
 
 function register(username, password, email)
 {
-    fetch("http://" + parsedUrl.host + "/register", 
+    fetch("http://" + parsedUrl.host + ":8001/register", 
     {
         method: 'POST',
         headers: 
@@ -23,7 +23,7 @@ function register(username, password, email)
             {
                 window.loggedIn = true;
                 alert("Successfully Registered!");
-                window.navigateTo('/home');
+                window.navigateTo('/login');
             }
             // If response is 500, server error occured, check server logs
             else if(response.status == 500) {

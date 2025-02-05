@@ -88,6 +88,7 @@ app.post("/login", function (request, response) {
 					// Use bcrypt to compare the combinedPassword with the stored password
 					bcrpyt.compare(combinedPass, storedPassword, function(err, result) {
 						// If we get an error, then there is a password mismatch
+						console.log(storedPassword);
 						if(err) {
 							console.log("Error occurred")
 							response.status(500);
@@ -219,10 +220,8 @@ app.post("/register", function (request, response) {
 	console.log("\nREGISTER Request: ", request.body);
 	// Dynamically construct the SQL query with user-provided credentials
 
-	const registerQuery = "INSERT INTO users VALUES (?, ?, ?, ?);";
-	const combinedPass = password + PEPPER;
+	const registerQuery = "INSERT INTO users VALUES (?, ?, ?, ?, ?);";
 
-	console.log("[REGISTER] Combined pass: ", combinedPass);
 
 	bcrpyt.genSalt(1, function(err, salt) {
 		if(err) {
@@ -231,11 +230,13 @@ app.post("/register", function (request, response) {
 		else {
 			console.log("[Register] salt: ", salt);
 		}
-		bcrpyt.hash(combinedPass, salt, function(err, hash) {
+		const combinedPass = salt + password + PEPPER;
+		console.log("[REGISTER] Combined pass: ", combinedPass);
+		bcrpyt.hash(combinedPass, 12, function(err, hash) {
 			if(err) {
 				console.log("Hash generation error:\n\t", err.message);
 			}
-			connection.query(registerQuery, [username, hash, salt, email], 
+			connection.query(registerQuery, [username, hash, 'user', salt, email], 
 				function (error, results, fields) 
 				{ // Execute the query
 					if (error) {
