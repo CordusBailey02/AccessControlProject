@@ -10,12 +10,13 @@ function generateTOTP(secret) {
 
 // Hardcoded secret
 const SECRET = 'M6GXIIRCNYTCY5JD';
+const username = 'admin';
 
 // Generate and print the TOTP code using your function
 console.log('Generated TOTP:', generateTOTP(SECRET));
 
 // Generate the OTP Auth URL for the user
-const otpauthUrl = authenticator.keyuri('admin', 'YourAppName', SECRET);
+const otpauthUrl = authenticator.keyuri(username, 'YourAppName', SECRET);
 
 // Generate and display the QR code
 qrcode.toString(otpauthUrl, { type: 'terminal' }, (err, qr) => {
