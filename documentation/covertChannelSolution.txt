@@ -1,0 +1,18 @@
+The theme of the website in general is Linux, and anti Windows. The covert channel combines your hatred for Windows
+with a covert channel to give a user information in plain sight.
+
+To make use of the covert channel, first navigate to our "Window's Sucks" page using the nav bar at the top of the page.
+
+On this page is 4 images, that has event listeners tied to them, as well as a number.
+As each image is pressed, it constructs a sequence list until you reach 6 numbers in the sequence.
+If you enter the correct sequence, hidden HTML is sent from the backend server to the frontend to display.
+
+The correct sequence is 1,2,3,4,2,1.
+This means you click the penguin with the juice box, the blue screen, the guy with a bat next to window, the penguin at the bottom,
+then the blue screen again, and finally the penguin with the juice box at the top.
+
+These sequence of clicks will display secret information to the user. In addition to this, a command is mentioned to the user to use
+on our terminal page.
+
+If the user navigates to the terminal page from the nav bar at the top of the page, and enters the command "cowsay", then they
+will be given information about API keys for certain servers.
