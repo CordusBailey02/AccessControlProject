@@ -449,13 +449,40 @@ app.post("/checkSequence", async function (request, response) {
 			<p><strong>You have completed the challenge!</strong></p>
 			<p>Congratulations, you're now part of the <strong>Linux Masters</strong> group! 🐧</p>
 			<p><em>Here's your reward:</em></p>
+			
 			<pre style="font-family: monospace; font-size: 16px; background-color: #222; color: #00ff00; padding: 10px; border-radius: 5px;">
 				${output}
 			</pre>
-			<p><strong>Bonus:</strong> Try running <code>cowsay</code> in the terminal page and see what happens!</p>
+
+			<h3>🚨 Classified Internal Document 🚨</h3>
+			<p><strong>Confidential: Internal Use Only</strong></p>
+			<pre style="font-family: monospace; font-size: 14px; background-color: #300; color: #ff3333; padding: 15px; border-radius: 5px; border: 2px dashed red;">
+				Internal Security Report - [REDACTED]
+				
+				1. Unpatched Vulnerability in Payment Processing:
+				- Affected System: internal_payments_v2
+				- Issue: Hardcoded admin credentials still exist in production.
+				- Impact: Full system compromise is possible if credentials are exposed.
+				- Status: [UNRESOLVED]
+				
+				2. Backdoor in Internal Admin Panel:
+				- Affected URL: /admin/hidden_debug
+				- Issue: Developers left a bypass that allows direct access to admin tools.
+				- Risk: If discovered, attackers could escalate privileges.
+				- Status: [ACTIVE, NO PUBLIC DISCLOSURE]
+				
+				3. Root Access Left Open on Internal Servers:
+				- System: server003.internal.corp
+				- Issue: SSH access with root/root still active.
+				- Urgency: CRITICAL. Needs immediate attention.
+				
+				THIS INFORMATION IS STRICTLY CONFIDENTIAL.
+				Unauthorized access to this document will result in immediate termination.
+			</pre>
+
+			<p> Try running <code>cowsay</code> in the terminal page and see what happens!</p>
 			<p>💡 <em>Try the command and see what else you can unlock!</em></p>
 		</div>
-		
         `);
     } else {
         return response.json({ message: "Sequence Incorrect" });
