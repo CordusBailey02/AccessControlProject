@@ -455,10 +455,7 @@ app.post("/checkSequence", async function (request, response) {
 // Endpoint to run the terminal command and return output
 app.post('/terminal', (req, res) => {
 	// Command to execute (you can change this to any command you'd like)
-	const fakeKey1 = "b9f3e1g4x2p7z3h8m1q5w2u8t9b1j5d9g0t";
-	const fakeKey2 = "v8y3b2h0q7g1z5u9k3n4p1f2k0w8y7z9a1";
-	const fakeKey3 = "89j7i2n4c3m0l2y1v6t0s8z7p5k9b8q4r";
-	const fakeKey4 = "z8f3v2q9h1o0c7y5w6b8m2n3s5z1j6r8p";
+
 	const command = `cowsay -f tux "API keys are fun to expose: \n${fakeKey1}, \n${fakeKey2}, \n${fakeKey3}, \n${fakeKey4}"`;
   
 	// Execute the command
