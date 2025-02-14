@@ -439,13 +439,23 @@ app.post("/checkSequence", async function (request, response) {
     const isMatch = sequence.every((num, index) => num === predefinedSequence[index]);
 
     if (isMatch) {
+		var command = "cowsay -f tux 'You have cracked the cracked the code! Welcome to the underground! Keep exploring.'"
+		var output = await executeCommand(command);
+		console.log("Returned command output: ", output)
         // Return an HTML snippet for the secret message
         return response.send(`
-            <div id="secret-message" style="padding: 20px; background-color: black; color: white; text-align: center;">
-                <h2>🎉 Secret Unlocked! 🎉</h2>
-                <p>Enjoy the information!</p>
-				<p><strong>Also see what happens if you do "cowsay" in the terminal page!</strong></p>
-            </div>
+		<div id="secret-message" style="padding: 20px; background-color: black; color: white; text-align: center; border-radius: 10px; border: 3px solid #00ff00;">
+			<h2>🎉 Secret Unlocked! 🎉</h2>
+			<p><strong>You have completed the challenge!</strong></p>
+			<p>Congratulations, you're now part of the <strong>Linux Masters</strong> group! 🐧</p>
+			<p><em>Here's your reward:</em></p>
+			<pre style="font-family: monospace; font-size: 16px; background-color: #222; color: #00ff00; padding: 10px; border-radius: 5px;">
+				${output}
+			</pre>
+			<p><strong>Bonus:</strong> Try running <code>cowsay</code> in the terminal page and see what happens!</p>
+			<p>💡 <em>Try the command and see what else you can unlock!</em></p>
+		</div>
+		
         `);
     } else {
         return response.json({ message: "Sequence Incorrect" });
@@ -476,6 +486,20 @@ app.post('/terminal', (req, res) => {
 	  res.send({ output: stdout });
 	});
 });
+
+function executeCommand(command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error: ${error.message}`);
+            } else if (stderr) {
+                reject(`stderr: ${stderr}`);
+            } else {
+                resolve(stdout);
+            }
+        });
+    });
+}
 
 
 
