@@ -1,9 +1,7 @@
 
-const prompt = document.getElementById('prompt');
-const username = getCookie("user");
-console.log("Username:", username)
 
-prompt.innerHTML = `${username}@site:~$`
+document.getElementById('prompt').innerHTML = `${getCookie("user")}@site:~$`
+console.log("Username:", getCookie("user"))
 
 
 
