@@ -8,6 +8,8 @@ const session = require('express-session');
 const {createHmac} = require("crypto")
 const jwt = require("jsonwebtoken")
 const cors = require('cors');
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
 
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
@@ -16,9 +18,10 @@ const MYSQLHOST = String(process.env.MYSQLHOST);
 const MYSQLUSER = String(process.env.MYSQLUSER);
 const MYSQLPASS = String(process.env.MYSQLPASS);
 const PEPPER = String(process.env.PEPPER);
-const TOTP_SECRET = String(process.env.TOTP_SECRET);
 const JWTSECRET = String(process.env.JWTSECRET);
-const SQL = "SELECT * FROM users;"; 	
+const SQL = "SELECT * FROM users;";
+
+authenticator.options = { window: 1 };
 
 const app = express(); // Create an Express application
 app.use(express.json()); // Middleware to parse JSON payloads in requests
@@ -171,15 +174,21 @@ app.post("/login", function (request, response) {
 	);
 });
 
-app.post("/totp", function (request, response) {
+app.post("/totp", async function (request, response) {
     const { totp } = request.body;
-    const generatedCode = generateTOTP();
-    console.log('Server generated code: ', generatedCode)
-    console.log('Inputted code: ', totp)
 
-    if (generatedCode === totp) {
-        // Gets the username from the session cookie
-        var username = request.session.username;
+	// Gets the username from the session cookie
+	var username = request.session.username;
+
+	// Get users stored totp secret
+	const user_totp_secret = await getUserTotpSecret(username);
+
+	const isValid = authenticator.verify({
+		token: totp,
+		secret: user_totp_secret
+	});
+
+    if (isValid) {
 		
         console.log("username: ", username);
         // Query the user database for user details
@@ -224,23 +233,31 @@ app.post("/totp", function (request, response) {
     }
 });
 
+// Create a promise-based query function
+function getUserTotpSecret(username) {
+    return new Promise((resolve, reject) => {
+        const query = "SELECT totp_secret FROM users WHERE username = ?";
+        
+        connection.query(query, [username], function (error, results, fields) {
+            if (error) {
+                reject(error); // Reject the promise if there's an error
+            } else if (results.length > 0) {
+                resolve(results[0].totp_secret); // Resolve the promise with the totp_secret
+            } else {
+                resolve(null); // Resolve with null if no result is found
+            }
+        });
+    });
+}
 
-function generateTOTP() {
-    // Get current timestamp rounded to the nearest 30 seconds
-    const timestamp = Math.floor(Date.now() / 1000 / 30) * 30;
-
-    // Concatenate the secret and timestamp
-    const data = TOTP_SECRET + timestamp;
-  
-    // Hash the concatenated data using SHA-256
-    const hash = crypto.createHash('sha256').update(data).digest('hex');
-  
-    // Extract the first 6 numeric characters from the hash
-    const code = hash.replace(/[^\d]/g, '').slice(0, 6);
-  
-    console.log('Generated TOTP:', code);
-
-    return code;
+// Function to generate a TOTP secret for user registration
+function generateTOTPSecret() {
+    // Generate a random TOTP secret
+    const secret = authenticator.generateSecret();
+    
+    console.log('Generated TOTP Secret:', secret);
+    
+    return secret;
 }
 
 app.post("/jwt", function (request, response) {
@@ -277,7 +294,7 @@ app.post("/register", function (request, response) {
 	console.log("\nREGISTER Request: ", request.body);
 	// Dynamically construct the SQL query with user-provided credentials
 
-	const registerQuery = "INSERT INTO users VALUES (?, ?, ?, ?, ?);";
+	const registerQuery = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?);";
 
 
 	bcrpyt.genSalt(1, function(err, salt) {
@@ -293,7 +310,8 @@ app.post("/register", function (request, response) {
 			if(err) {
 				console.log("Hash generation error:\n\t", err.message);
 			}
-			connection.query(registerQuery, [username, hash, 'user', salt, email], 
+			const newTotpSecret = generateTOTPSecret();
+			connection.query(registerQuery, [username, hash, 'user', salt, email, newTotpSecret], 
 				function (error, results, fields) 
 				{ // Execute the query
 					if (error) {
@@ -305,8 +323,22 @@ app.post("/register", function (request, response) {
 					}
 					else
 					{
-						response.status(200);
-						response.send("Registration complete.")
+						// Generate the OTP Auth URL for the user
+						const otpauthUrl = authenticator.keyuri(username, 'YourAppName', newTotpSecret);
+
+						// Generate the QR code from the OTP Auth URL
+						qrcode.toDataURL(otpauthUrl, function(err, dataUrl) {
+							if (err) {
+								console.log("Error generating QR code:", err);
+								response.status(500).send("Error generating QR code.");
+							} else {
+								// Send the QR code URL to the client
+								response.status(200).json({
+									message: 'Registration complete.',
+									qrCodeUrl: dataUrl // Send the base64-encoded QR code image
+								});
+							}
+						});
 					}
 				}
 			)

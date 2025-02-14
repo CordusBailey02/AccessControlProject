@@ -16,14 +16,21 @@ function register(username, password, email)
             password: password,
             email: email
         }),
-    }).then((response) => 
+    }).then(async (response) => 
     {
         // If response is 200, success login
         if(response.status == 200)
-            {
+            {   
+                let generatedQrCodeUrl;
+                await response.json().then(data => {
+                    // If QR Code URL is returned, display it
+                    if (data.qrCodeUrl) {
+                        generatedQrCodeUrl = data.qrCodeUrl;
+                    }
+                });
                 window.loggedIn = true;
                 alert("Successfully Registered!");
-                window.navigateTo('/login');
+                showQrCodeModal(generatedQrCodeUrl)
             }
             // If response is 500, server error occured, check server logs
             else if(response.status == 500) {
@@ -40,3 +47,21 @@ function register(username, password, email)
         // alert("Network Error");
     });
 }
+
+// Add listener to close modal and redirect to login
+document.getElementById('closeModal').addEventListener('click', function() {
+    qrModal.style.display = 'none'; // Close the modal
+    navigateTo('/login') // Redirect to login page
+});
+
+// Show QR Code Modal
+function showQrCodeModal(qrCodeUrl) {
+    const qrModal = document.getElementById('qrModal');
+    const qrImage = document.getElementById('qrCode');
+    qrImage.src = qrCodeUrl; // Set the QR code URL
+  
+    // Display the modal
+    qrModal.style.display = 'block'; 
+}
+  
+  

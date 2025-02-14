@@ -9,6 +9,7 @@ CREATE TABLE users (
     role     ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     salt     VARCHAR(255) NOT NULL,
     email    VARCHAR(255) NOT NULL,
+    totp_secret VARCHAR(255) NOT NULL,
     PRIMARY KEY (username)
 );
 
@@ -25,11 +26,13 @@ VALUES("user",
     "$2a$12$wUWUEeCBtZhpornft90MjOAlp.96R/xyiZJin8E3xYuE7Zsfr7D4C", -- Password: 'pass'
     "user",
     "3eb7", 
-    "user@example.com");
+    "user@example.com",
+    "M6GXIIRCNYTCY5JD");
 
 INSERT INTO users
 VALUES("admin",
     "$2a$12$I4TNqxOKutDxXWF76ORf0elFIpTuHOoMw8zKWtjVfq2L9nnTgYAGu", -- Password is really 'example'
     "admin",
     "8c9a",
-    "admin@example.com")
+    "admin@example.com",
+    "M6GXIIRCNYTCY5JD")

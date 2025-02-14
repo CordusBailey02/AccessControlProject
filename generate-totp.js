@@ -1,26 +1,28 @@
-#!/usr/bin/env node
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
 
-const crypto = require('crypto');
+authenticator.options = { window: 1 };
 
+// Your existing function
 function generateTOTP(secret) {
-    // Get current timestamp rounded to the nearest 30 seconds
-    const timestamp = Math.floor(Date.now() / 1000 / 30) * 30;
-  
-    // Concatenate the secret and timestamp
-    const data = secret + timestamp;
-  
-    // Hash the concatenated data using SHA-256
-    const hash = crypto.createHash('sha256').update(data).digest('hex');
-  
-    // Extract the first 6 numeric characters from the hash
-    const code = hash.replace(/[^\d]/g, '').slice(0, 6);
-  
-    console.log('Generated TOTP:', code);
-
-    return code;
+    return authenticator.generate(secret); // Uses `otplib` to generate TOTP correctly
 }
 
 // Hardcoded secret
-const SECRET = 'frailVictorianChild';
+const SECRET = 'M6GXIIRCNYTCY5JD';
 
-generateTOTP(SECRET);
+// Generate and print the TOTP code using your function
+console.log('Generated TOTP:', generateTOTP(SECRET));
+
+// Generate the OTP Auth URL for the user
+const otpauthUrl = authenticator.keyuri('admin', 'YourAppName', SECRET);
+
+// Generate and display the QR code
+qrcode.toString(otpauthUrl, { type: 'terminal' }, (err, qr) => {
+    if (err) {
+        console.log("Error generating QR code:", err);
+        return;
+    }
+    console.log("Scan this QR code with Google Authenticator:\n");
+    //console.log(qr);
+});
