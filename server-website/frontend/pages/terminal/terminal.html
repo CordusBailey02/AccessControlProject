@@ -1,7 +1,10 @@
 <body>
     <!-- Command Line Interface -->
-    <div class="terminal-div" id="terminal" style="display: none;">
-        <p id="command-line">user@site:~$ <input type="text" id="command" onkeydown="runCommand(event)" autocomplete="off"></p>
+    <div class="terminal-div" id="terminal" style="display: block;">
+        <p id="command-line">
+            <span id="prompt"></span>
+            <input type="text" id="command" onkeydown="runCommand(event)" autocomplete="off">
+        </p>
         <div id="output"></div>
     </div>
 </body>

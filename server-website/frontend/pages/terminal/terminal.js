@@ -1,3 +1,12 @@
+
+const prompt = document.getElementById('prompt');
+const username = getCookie("user");
+console.log("Username:", username)
+
+prompt.innerHTML = `${username}@site:~$`
+
+
+
 // Function to handle command execution
 function runCommand(event) {
     if (event.key === 'Enter') {
@@ -12,7 +21,8 @@ function runCommand(event) {
         } else if (command === 'date') {
             output = new Date().toString() + '\n';
         } else if (command === 'clear') {
-            document.getElementById('output').innerHTML = ''; // Clear the terminal output
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('command').value = '';
             return; // Exit early to prevent adding a line of 'clear' output
         } else if (command == "cowsay") {
             executeCommand()
@@ -22,7 +32,7 @@ function runCommand(event) {
         }
 
         // Display the output and move the cursor down
-        document.getElementById('output').textContent += `user@site:~$ ${command}\n${output}`;
+        document.getElementById('output').textContent += `${username}@site:~$ ${command}\n${output}`;
         
         // Clear the input field after command execution
         document.getElementById('command').value = '';
