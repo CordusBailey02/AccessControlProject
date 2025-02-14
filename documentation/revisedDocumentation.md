@@ -4,20 +4,22 @@
 2. [Dependencies Modules](#dependencies-modules)
 3. [Adding Pepper to Passwords](#adding-pepper-to-passwords)
 4. [Bcrypt Integration](#bcrypt-integration)
+5. [TOTP Integration](#totp-integration)
 5. [JWT Integration](#jwt-integration)
 6. [Roles and Permissions](#roles-and-permissions)
 7. [Logging](#logging)
-8. [Endpoints](#endpoints)
+8. [Covert Channel](#covert-channel)
+9. [Endpoints](#endpoints)
     - [Backend Server Users](#backend-server-users)
     - [Backend Server Website](#backend-server-website)
-9. [Docker Compose](#docker-compose)
+10. [Docker Compose](#docker-compose)
     - [Handling Website Crashes](#handling-website-crashes)
-10. [Application Structure Overview](#application-structure-overview)
+11. [Application Structure Overview](#application-structure-overview)
     - [server-website](#server-website)
     - [server-users](#server-users)
     - [sql-users](#sql-users)
     - [sql-website](#sql-website)
-11. [Steps Required to Access the Information](#steps-required-to-access-the-information)
+12. [Steps Required to Access the Information](#steps-required-to-access-the-information)
 
 ---
 
@@ -87,6 +89,20 @@ The `bcrypt` library is used for password hashing and comparison, enhancing secu
     "mysql2": "2.3.3"
 }
 ```
+
+# TOTP Integration
+
+Our website has an integrated TOTP feature for multifactor authentication. When a user register, they are given a generated TOTP secret that is unique to them. After the user has fully registered, they are shown a QR code which they can scan with an authenticator app to access their TOTP codes for login.
+
+![RegisterQrCode](./registerQrCode.png)
+
+After the modal for the QR code is closed, the user is brought to the login page so they can login with their new account.
+
+There is also a standlone NodeJS application that can be used to reaccess the QR Code, and get the TOTP for the user to login. This script is called 'generate-totp.js' and is located in the root directory of the repository. This script however does require you to know the users TOTP secret and username, and the code can be ran with the following command:
+```
+node generate-totop.js
+```
+
 
 # JWT Integration
 
@@ -230,6 +246,27 @@ To view the logs, one must have an account with `admin` privileges. When this us
 
 ![Logging](./logging.png)
 
+# Covert Channel
+
+A covert channel has been built into the website to provide information to users that know how to access it, or stuble upon it by accident. Either way, there is two aspects to this covert channel integration.
+
+## Initial Finding
+For the user to find the intial secret to point them to the private information, they must navigate to the "Window's Sucks" page using the navigation bar at the top of the screen. On this page is a total of four images, but these images has listeners that call a function.
+
+Each image corresponds with a number, and as each image is pressed its number gets added to a sequence list. For example if you pressed the 2nd image, 3rd image, and then 1st image, then your sequence would be [2,3,1]. For our implementation, we have decided to make the sequence 6 numbers long, and the following sequence being the proper input:
+```
+[1,2,3,4,2,1]
+```
+
+Once the user has a sequence equal to the length of 6, it sends an API request to the backend server to verify it and get a response. If the sequence is incorrect, then the server sends back nothing and the user would be none the wiser. But if the sequence is correct, we send some HTML for the frontend to displa, providing the user with private knowledge they can use. The message informs the user they should try using the "cowsay" command on our terminal page.
+
+![ImagesSecret](./imagesSecret.png)
+![ImagesSecret2](./imagesSecret2.png)
+
+When the user enter "cowsay" to the terminal on the terminal page, it returns a list of API keys that they user can not use to do what they please with. 
+
+![TerminalSecret](./terminalSecret.png)
+
 # Endpoints
 
 ## Backend Server Users
@@ -241,6 +278,7 @@ To view the logs, one must have an account with `admin` privileges. When this us
 | `/jwt`        | Checks the validity of JWT tokens for queries. |
 | `/log_entry`  | Enters a new log into the `logs` SQL table. |
 | `/log_retrieve`| Retrieves all logs from the `logs` SQL table. |
+| `/register`   | Registers a new users account |
 
 ## Backend Server Website
 
@@ -250,6 +288,8 @@ To view the logs, one must have an account with `admin` privileges. When this us
 | `/query2`     | Allows users with the `user` or `admin` role to query a table. |
 | `/query3`     | Restricted to users with the `admin` role for database queries. |
 | `/logs`       | Restricted to users with the `admin` role for accessing the logs. |
+| `/checkSequence`| Used to check if the user entered the correct sequence to get the hidden HTML message. |
+| `/terminal`   | Used to get the output of a certain command if the user enters it, to get secret information about the website. |
 
 # Docker Compose
 
@@ -315,6 +355,7 @@ The `sql-users` container runs a MySQL server with the `users.sql` file to creat
 - **Role**: Restricts the user's access.
 - **Salt**: Randomly generated during registration.
 - **Email**: User's linked email.
+- **TOTP_Secret**: User's TOTP secret for multifactor authentication
 
 #### Logs Table
 
@@ -335,13 +376,15 @@ The `sql-website` container runs a MySQL server with the `website.sql` file to c
 | thing1 | thing2 | thing3 | thing4 |
 | ------ | ------ | ------ | ------ |
 
-#### super_secrets
-| secret1 |
-| ------- |
+#### linux_thoughts
+| id       | message1 | message2 | message3 | message4 | message5 | message6 | message7 | message8 | message9 | message10 | 
+| -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | --------- |
 
-#### normal_secrets
-| secret1 |
-| ------- |
+
+#### trashing_windows
+| id       | message1 | message2 | message3 | message4 | message5 | message6 | message7 | message8 | message9 | message10 | 
+| -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | --------- |
+
 
 # Steps Required to Access the Information
 
