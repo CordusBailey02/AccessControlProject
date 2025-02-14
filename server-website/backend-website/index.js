@@ -4,6 +4,7 @@ const mysql = require("mysql2");         // Import MySQL2 for connecting to the 
 const path = require("path");            // Import `path` for handling file paths
 const unirest = require("unirest")
 const cors = require('cors');
+const { exec } = require('child_process');
 
 // Define environment variables for server and database configuration
 const PORT = String(process.env.PORT); 
@@ -421,6 +422,62 @@ app.get("/logs", async function (request, response) {
 
 	}
 });
+
+app.post("/checkSequence", async function (request, response) {
+    const { sequence } = request.body; // Get sequence from request
+    console.log("Received sequence:", sequence);
+
+    // Define the correct predefined sequence
+    const predefinedSequence = [1, 2, 3, 4, 2, 1]; // Change this as needed
+
+    // Validate sequence length
+    if (!sequence || sequence.length !== 6) {
+        return response.status(400).json({ message: "Invalid sequence length" });
+    }
+
+    // Compare received sequence to predefined sequence
+    const isMatch = sequence.every((num, index) => num === predefinedSequence[index]);
+
+    if (isMatch) {
+        // Return an HTML snippet for the secret message
+        return response.send(`
+            <div id="secret-message" style="padding: 20px; background-color: black; color: white; text-align: center;">
+                <h2>🎉 Secret Unlocked! 🎉</h2>
+                <p>Enjoy the information!</p>
+				<p><strong>Also see what happens if you do "cowsay" in the terminal page!</strong></p>
+            </div>
+        `);
+    } else {
+        return response.json({ message: "Sequence Incorrect" });
+    }
+});
+
+// Endpoint to run the terminal command and return output
+app.post('/terminal', (req, res) => {
+	// Command to execute (you can change this to any command you'd like)
+	const fakeKey1 = "AIzaSyD8m4DZoT5kL5_6fQs8Vt3wA1jxxyg-F9k";
+	const fakeKey2 = "ghp_1234567890abcdefgHijklMnOpQrstUvWxYzAbCdEfGh"
+	const fakeKey3 = "d1f8bd90-48b1-4bb3-9b5f-abbf9837f29c"
+	const fakeKey4 = "AKIAIOSFODNN7EXAMPLE"
+	const command = `cowsay -f tux "API keys are fun to expose: \n${fakeKey1}, \n${fakeKey2}, \n${fakeKey3}, \n${fakeKey4}"`;
+  
+	// Execute the command
+	exec(command, (error, stdout, stderr) => {
+	  if (error) {
+		console.error(`Error executing command: ${error}`);
+		return res.status(500).send('Error executing command');
+	  }
+	  if (stderr) {
+		console.error(`stderr: ${stderr}`);
+		return res.status(500).send('Error executing command');
+	  }
+	  
+	  // Send the command output back as a response
+	  res.send({ output: stdout });
+	});
+});
+
+
 
 // Start the server on the specified HOST and PORT
 app.listen(PORT, HOST);

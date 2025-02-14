@@ -194,10 +194,15 @@ function logout() {
 function checkAndShowContent() {
 	// Makes reference to the div used to display the query button and text box
     const contentElement = document.querySelector('.query-content');
+	const contentElement2 = document.querySelector('.terminal-div');
+	
     
 	// If the 'style: display' is set to none, then change it to
     if (contentElement && contentElement.style.display === 'none') {
         contentElement.style.display = 'block';
+    }
+	if (contentElement2 && contentElement2.style.display === 'none') {
+        contentElement2.style.display = 'block';
     }
 }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
-    <link type="text/css" rel="stylesheet" href="styles.css">
+    <link type="text/css" rel="stylesheet" href="newCSS.css">
     <head>
         <title>Access Control Project</title>
     </head>
@@ -11,8 +11,12 @@
         <header id="page-header">
             <nav>
                 <!-- Home link, aligned to the left -->
-                <a href="javascript:void(0)" onClick="navigateTo('/home')">Home</a>
-
+                <div>
+                    <a href="javascript:void(0)" onClick="navigateTo('/home')">Home</a>
+                    <a href="javascript:void(0)" onClick="navigateTo('/terminal')">Terminal</a>
+                    <a href="javascript:void(0)" onClick="navigateTo('/covert')">Window's Sucks</a>
+                </div>
+                
                 <!-- These links will only be visible if the user is NOT logged in -->
                 <div class="login-register">
                     <a href="javascript:void(0)" onClick="navigateTo('/login')">Login</a>
