@@ -235,7 +235,7 @@ app.get("/query2", async function (request, response) {
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
-			const SQL_QUERY = "SELECT * FROM normal_secrets;";
+			const SQL_QUERY = "SELECT * FROM linux_thoughts;";
 
 			//Execute the sql query
 			connection.query(SQL_QUERY, function (error, results) {
@@ -311,7 +311,7 @@ app.get("/query3", async function (request, response) {
 
 		// Check if the user has the correct role
 		if(allowedRoles.includes(verificationResult.role)) {
-			const SQL_QUERY = "SELECT * FROM super_secrets;";
+			const SQL_QUERY = "SELECT * FROM trashing_windows;";
 
 			//Execute the sql query
 			connection.query(SQL_QUERY, function (error, results) {
