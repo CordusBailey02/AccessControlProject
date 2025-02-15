@@ -57,7 +57,11 @@ async function navigateTo(path) {
 	// Throw a 404 error on the screen if the html file couldnt be found
 	catch(error) {
 		console.error(error.message);
-		updatePageContent('<h1>404 - Page Not Found</h1>');
+		updatePageContent(`
+			<h1>404 - Page Not Found</h1>
+			<p> Contact RuntTimeTerror@linux.com for assitance! </p>
+			<p> It sucks, but please provide the Case Number here: 123421 </p>
+			`);
 	}
 }
 
