@@ -30,7 +30,7 @@ function runCommand(event) {
         }
 
         // Display the output and move the cursor down
-        document.getElementById('output').textContent += `${username}@site:~$ ${command}\n${output}`;
+        document.getElementById('output').textContent += `${getCookie("user")}@site:~$ ${command}\n${output}`;
         
         // Clear the input field after command execution
         document.getElementById('command').value = '';
