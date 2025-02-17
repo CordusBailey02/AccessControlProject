@@ -40,7 +40,7 @@ function runCommand(event) {
 
 function executeCommand() {
 
-    fetch("http://localhost:80/terminal", { // Update with your actual server URL
+    fetch("http://" + parsedUrl.host + "/terminal", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
