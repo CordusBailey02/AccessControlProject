@@ -1,4 +1,4 @@
-
+var parsedUrl = new URL(window.location.href);
 
 document.getElementById('prompt').innerHTML = `${getCookie("user")}@site:~$`
 console.log("Username:", getCookie("user"))
