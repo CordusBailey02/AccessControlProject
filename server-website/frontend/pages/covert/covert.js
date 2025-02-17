@@ -1,3 +1,4 @@
+var parsedUrl = new URL(window.location.href);
 
 let sequence = [];
 
@@ -13,7 +14,7 @@ function buildSequence(number) {
 function sendSequence(sequence) {
     console.log('Sequence:', sequence);
 
-    fetch("http://localhost:80/checkSequence", { // Update with your actual server URL
+    fetch("http://" + parsedUrl.host + "/checkSequence", { // Update with your actual server URL
         method: "POST",
         headers: {
             "Content-Type": "application/json"
