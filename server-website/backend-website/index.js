@@ -28,7 +28,9 @@ let connection = mysql.createConnection({
 	host: MYSQLHOST, 
 	user: MYSQLUSER, 
 	password: MYSQLPASS, 
-	database: "stuff" 
+	database: "stuff",
+	keepAliveInitialDelay: 60000, // Send keep-alive packet every 60s
+	enableKeepAlive: true
 });
 
 // Serve static files from the frontend directory

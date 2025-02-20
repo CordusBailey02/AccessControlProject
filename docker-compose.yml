@@ -2,6 +2,7 @@
 services:
   mysql-users:
     image: mysql
+    command: --wait_timeout=31536000 --interactive_timeout=31536000 --max_allowed_packet=1073741824
     environment:
       - MYSQL_ROOT_PASSWORD=example
     volumes:
@@ -33,6 +34,7 @@ services:
 
   mysql-website:
     image: mysql
+    command: --wait_timeout=31536000 --interactive_timeout=31536000 --max_allowed_packet=1073741824
     environment:
       - MYSQL_ROOT_PASSWORD=example
     volumes:

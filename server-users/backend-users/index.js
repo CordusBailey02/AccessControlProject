@@ -48,7 +48,9 @@ let connection = mysql.createConnection({
 	host: MYSQLHOST, 
 	user: MYSQLUSER, 
 	password: MYSQLPASS, 
-	database: "users" 
+	database: "users",
+	keepAliveInitialDelay: 60000, // Send keep-alive packet every 60s
+	enableKeepAlive: true 
 });
 
 // Route for inserting logs
