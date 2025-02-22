@@ -15,6 +15,7 @@ services:
 
   server-users:
     build: ./server-users
+    restart: always
     environment:
       - HOST=0.0.0.0
       - PORT=80
@@ -47,6 +48,7 @@ services:
   
   server-website:
     build: ./server-website
+    restart: always
     environment:
       - HOST=0.0.0.0
       - PORT=80
